@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071a13" />
+    <title>Administración | Y & A</title>
+    <link rel="stylesheet" href="Admin.css" />
+  </head>
+  <body class="admin-page" data-page="admin">
+    <div class="admin-shell">
+      <aside class="admin-sidebar" aria-label="Menú administrativo">
+        <div class="sidebar-brand">
+          <span id="admin-couple-logo" class="brand-mark">Y &amp; A</span>
+          <small>Panel</small>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Navegación principal">
+          <button class="nav-item is-active" type="button" data-target="personalizacion">
+            <span class="nav-icon" aria-hidden="true">✦</span>
+            <span>Personalización</span>
+          </button>
+          <button class="nav-item" type="button" data-target="invitados">
+            <span class="nav-icon" aria-hidden="true">☰</span>
+            <span>Invitados</span>
+          </button>
+          <button class="nav-item" type="button" data-target="organizacion">
+            <span class="nav-icon" aria-hidden="true">✧</span>
+            <span>Organización</span>
+          </button>
+          <button id="admin-logout" class="nav-item nav-item--logout" type="button">
+            <span class="nav-icon" aria-hidden="true">⎋</span>
+            <span>Cerrar sesión</span>
+          </button>
+        </nav>
+      </aside>
+
+      <main class="admin-content">
+        <header class="admin-header">
+          <button class="sidebar-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+            <span>☰</span>
+          </button>
+          <div>
+            <p class="admin-kicker">Panel privado</p>
+            <h1>Área de administración</h1>
+          </div>
+        </header>
+
+        <section class="admin-panel is-visible" id="personalizacion" aria-label="Personalización">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">Contenido y apariencia</p>
+              <h2>Personalización</h2>
+            </div>
+            <div class="panel-actions">
+              <span class="info-pill">Actualización en tiempo real</span>
+              <button class="secondary-button" id="top-preview-button" type="button">Vista previa</button>
+            </div>
+          </header>
+
+          <form id="personalization-form" class="personalization-form">
+            <div class="panel-grid">
+              <article class="admin-card form-card">
+                <p class="card-title">Datos de los Novios</p>
+                <div class="form-field-group">
+                  <label class="field-label" for="noviaNombre">Nombre de la novia</label>
+                  <input id="noviaNombre" name="brideName" type="text" placeholder="Ej: Ana" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="novioNombre">Nombre del novio</label>
+                  <input id="novioNombre" name="groomName" type="text" placeholder="Ej: Carlos" />
+                </div>
+              </article>
+
+              <article class="admin-card form-card">
+                <p class="card-title">Ceremonia</p>
+                <div class="form-field-group">
+                  <label class="field-label" for="ceremonyDate">Fecha y hora</label>
+                  <input id="ceremonyDate" name="ceremonyDate" type="datetime-local" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="ceremonyVenue">Lugar</label>
+                  <input id="ceremonyVenue" name="ceremonyVenue" type="text" placeholder="Ej: Parroquia Nuestra Señora" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="ceremonyAddress">Dirección</label>
+                  <input id="ceremonyAddress" name="ceremonyAddress" type="text" placeholder="Dirección de la ceremonia" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="ceremonyMap">Google Maps</label>
+                  <input id="ceremonyMap" name="ceremonyMap" type="url" placeholder="https://maps.google.com/..." />
+                </div>
+              </article>
+
+              <article class="admin-card form-card">
+                <p class="card-title">Recepción</p>
+                <div class="form-field-group">
+                  <label class="field-label" for="receptionDate">Fecha y hora</label>
+                  <input id="receptionDate" name="receptionDate" type="datetime-local" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="receptionVenue">Lugar</label>
+                  <input id="receptionVenue" name="receptionVenue" type="text" placeholder="Ej: Hacienda El Castillo" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="receptionAddress">Dirección</label>
+                  <input id="receptionAddress" name="receptionAddress" type="text" placeholder="Dirección de la recepción" />
+                </div>
+                <div class="form-field-group">
+                  <label class="field-label" for="receptionMap">Google Maps</label>
+                  <input id="receptionMap" name="receptionMap" type="url" placeholder="https://maps.google.com/..." />
+                </div>
+              </article>
+
+              <article class="admin-card form-card color-card">
+                <div class="section-toolbar">
+                  <p class="card-title">Colores Principales del Evento</p>
+                  <button class="secondary-button add-color" type="button" data-group="primary">+ Agregar color</button>
+                </div>
+                <div class="color-list" data-group="primary"></div>
+              </article>
+
+              <article class="admin-card form-card color-card">
+                <div class="section-toolbar">
+                  <p class="card-title">Colores Reservados / Dress Code</p>
+                  <button class="secondary-button add-color" type="button" data-group="dressCode">+ Agregar color</button>
+                </div>
+                <div class="color-list" data-group="dressCode"></div>
+              </article>
+
+              <article class="admin-card form-card wide-card">
+                <p class="card-title">Mensaje de Bienvenida</p>
+                <textarea id="welcomeMessage" name="welcomeMessage" rows="5" placeholder="Escribe una frase o texto de bienvenida para la página principal..."></textarea>
+                <div class="form-field-group" style="margin-top: 1rem;">
+                  <label class="field-label" for="welcomeReference">Referencia del mensaje</label>
+                  <input id="welcomeReference" name="welcomeReference" type="text" placeholder="Ej: Marcos 10:9" />
+                </div>
+              </article>
+
+              <article class="admin-card form-card wide-card">
+                <div class="section-toolbar">
+                  <p class="card-title">Apariencia</p>
+                  <button class="secondary-button" id="theme-preview-button" type="button">Vista previa</button>
+                </div>
+                <div class="form-grid-compact">
+                  <div class="form-field-group">
+                    <label class="field-label" for="themePrimaryColor">Color principal</label>
+                    <input id="themePrimaryColor" name="themePrimaryColor" type="color" value="#163A2B" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="themeAccentColor">Color de acento</label>
+                    <input id="themeAccentColor" name="themeAccentColor" type="color" value="#D4AF37" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="themeBackgroundColor">Fondo</label>
+                    <input id="themeBackgroundColor" name="themeBackgroundColor" type="color" value="#F8F3EA" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="themeTextColor">Texto</label>
+                    <input id="themeTextColor" name="themeTextColor" type="color" value="#163A2B" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="themeHeadingFont">Tipografía principal</label>
+                    <select id="themeHeadingFont" name="themeHeadingFont">
+                      <option value="Bodoni 72">Bodoni 72</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Trebuchet MS">Trebuchet MS</option>
+                    </select>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="themeBodyFont">Tipografía secundaria</label>
+                    <select id="themeBodyFont" name="themeBodyFont">
+                      <option value="Trebuchet MS">Trebuchet MS</option>
+                      <option value="Arial">Arial</option>
+                      <option value="Segoe UI">Segoe UI</option>
+                      <option value="Georgia">Georgia</option>
+                    </select>
+                  </div>
+                </div>
+              </article>
+
+              <article class="admin-card form-card wide-card">
+                <div class="section-toolbar">
+                  <p class="card-title">Contenido de la invitación</p>
+                  <span class="mini-badge">Público</span>
+                </div>
+                <div class="form-grid-compact">
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicHeroEyebrow">Línea de bienvenida</label>
+                    <input id="publicHeroEyebrow" name="publicHeroEyebrow" type="text" placeholder="Nuestra historia escrita en las estrellas" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicHeroSubtitle">Subtítulo del hero</label>
+                    <input id="publicHeroSubtitle" name="publicHeroSubtitle" type="text" placeholder="Haz Click en el botón para abrir" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicHeroButton">Texto del botón principal</label>
+                    <input id="publicHeroButton" name="publicHeroButton" type="text" placeholder="Bienvenidos" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicCountdownEyebrow">Eyebrow de cuenta regresiva</label>
+                    <input id="publicCountdownEyebrow" name="publicCountdownEyebrow" type="text" placeholder="El momento se acerca" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicCountdownTitle">Título de cuenta regresiva</label>
+                    <input id="publicCountdownTitle" name="publicCountdownTitle" type="text" placeholder="Faltan" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicCeremonyLabel">Etiqueta de ceremonia</label>
+                    <input id="publicCeremonyLabel" name="publicCeremonyLabel" type="text" placeholder="Ceremonia" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicCeremonyTitle">Título de ceremonia</label>
+                    <input id="publicCeremonyTitle" name="publicCeremonyTitle" type="text" placeholder="Donde diremos “sí”" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicReceptionLabel">Etiqueta de recepción</label>
+                    <input id="publicReceptionLabel" name="publicReceptionLabel" type="text" placeholder="Recepción" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicReceptionTitle">Título de recepción</label>
+                    <input id="publicReceptionTitle" name="publicReceptionTitle" type="text" placeholder="Donde celebraremos" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicDressEyebrow">Eyebrow de vestimenta</label>
+                    <input id="publicDressEyebrow" name="publicDressEyebrow" type="text" placeholder="Código de vestimenta" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicDressTitle">Título de vestimenta</label>
+                    <input id="publicDressTitle" name="publicDressTitle" type="text" placeholder="Semi-formal" />
+                  </div>
+                  <div class="form-field-group wide-field">
+                    <label class="field-label" for="publicDressDescription">Descripción de vestimenta</label>
+                    <textarea id="publicDressDescription" name="publicDressDescription" rows="3" placeholder="Queremos verlos brillar junto a nosotros..."></textarea>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicAlbumEyebrow">Eyebrow del álbum</label>
+                    <input id="publicAlbumEyebrow" name="publicAlbumEyebrow" type="text" placeholder="Tus fotos también cuentan la historia" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicAlbumTitle">Título del álbum</label>
+                    <input id="publicAlbumTitle" name="publicAlbumTitle" type="text" placeholder="Comparte tus recuerdos" />
+                  </div>
+                  <div class="form-field-group wide-field">
+                    <label class="field-label" for="publicAlbumDescription">Descripción del álbum</label>
+                    <textarea id="publicAlbumDescription" name="publicAlbumDescription" rows="3" placeholder="Escanea el código QR para subir tus fotos..."></textarea>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicRsvpEyebrow">Eyebrow de RSVP</label>
+                    <input id="publicRsvpEyebrow" name="publicRsvpEyebrow" type="text" placeholder="Tu compañía es nuestro mejor regalo" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicRsvpTitle">Título de RSVP</label>
+                    <input id="publicRsvpTitle" name="publicRsvpTitle" type="text" placeholder="Confirma tu asistencia" />
+                  </div>
+                  <div class="form-field-group wide-field">
+                    <label class="field-label" for="publicRsvpDescription">Descripción de RSVP</label>
+                    <textarea id="publicRsvpDescription" name="publicRsvpDescription" rows="3" placeholder="Ayúdanos a preparar todo con cariño..."></textarea>
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicRsvpButton">Texto del botón de RSVP</label>
+                    <input id="publicRsvpButton" name="publicRsvpButton" type="text" placeholder="Confirmar asistencia" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicGiftsEyebrow">Eyebrow de regalos</label>
+                    <input id="publicGiftsEyebrow" name="publicGiftsEyebrow" type="text" placeholder="Si deseas tener un detalle con nosotros" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="publicGiftsTitle">Título de regalos</label>
+                    <input id="publicGiftsTitle" name="publicGiftsTitle" type="text" placeholder="Mesa de regalos" />
+                  </div>
+                  <div class="form-field-group wide-field">
+                    <label class="field-label" for="publicGiftsDescription">Descripción de regalos</label>
+                    <textarea id="publicGiftsDescription" name="publicGiftsDescription" rows="3" placeholder="Tu presencia es el regalo más importante..."></textarea>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <div class="form-actions">
+              <button class="login-submit" type="submit">Guardar Cambios</button>
+              <span class="save-status" aria-live="polite"></span>
+            </div>
+          </form>
+        </section>
+
+        <section class="admin-panel" id="invitados" aria-label="Invitados">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">CRM y seguimiento</p>
+              <h2>Invitados</h2>
+            </div>
+            <div class="panel-actions">
+              <span class="info-pill">Filtros rápidos</span>
+            </div>
+          </header>
+
+          <div class="panel-grid">
+            <article class="admin-card metric-card">
+              <p class="metric-label">Total</p>
+              <h2 id="guest-total">0</h2>
+              <p>Invitados registrados en la base actual.</p>
+            </article>
+
+            <article class="admin-card metric-card">
+              <p class="metric-label">Confirmados</p>
+              <h2 id="guest-confirmed">0</h2>
+              <p>Personas que ya respondieron.</p>
+            </article>
+
+            <article class="admin-card metric-card">
+              <p class="metric-label">Pendientes</p>
+              <h2 id="guest-pending">0</h2>
+              <p>Confirmaciones aún esperando respuesta.</p>
+            </article>
+
+            <article class="admin-card wide-card crm-overview">
+              <div class="section-toolbar guest-toolbar">
+                <p class="card-title">CRM de invitados</p>
+                <div class="crm-chips" aria-label="Filtros rápidos de CRM">
+                  <button class="crm-chip is-active" type="button" data-crm-filter="all">Todos</button>
+                  <button class="crm-chip" type="button" data-crm-filter="pending">Pendientes</button>
+                  <button class="crm-chip" type="button" data-crm-filter="confirmed">Confirmados</button>
+                  <button class="crm-chip" type="button" data-crm-filter="declined">No asistirá</button>
+                </div>
+              </div>
+              <div class="crm-summary-grid">
+                <div class="mini-stat">
+                  <span class="mini-stat-label">Seguimiento</span>
+                  <strong id="crm-followup">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-stat-label">Sin respuesta</span>
+                  <strong id="crm-pending">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-stat-label">Con RSVP</span>
+                  <strong id="crm-confirmed">0</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="admin-card wide-card">
+              <div class="section-toolbar guest-toolbar">
+                <p class="card-title">Lista de invitados</p>
+                <div class="guest-controls">
+                  <input id="guest-search" type="search" placeholder="Buscar por nombre o apellido" />
+                  <select id="guest-status-filter">
+                    <option value="all">Todos</option>
+                    <option value="pending">Pendientes</option>
+                    <option value="confirmed">Confirmados</option>
+                    <option value="declined">No asistirá</option>
+                  </select>
+                  <button id="export-guest-csv" class="secondary-button" type="button">Exportar CSV</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="guest-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nombre</th>
+                      <th>Tipo</th>
+                      <th>De parte</th>
+                      <th>Estado</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="guest-table-body">
+                    <tr>
+                      <td colspan="6" class="table-placeholder"><span>Cargando invitados...</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="organizacion" aria-label="Organización">
+          <header class="panel-header">
+            <div>
+              <p class="panel-kicker">Agenda y logística</p>
+              <h2>Organización</h2>
+            </div>
+            <div class="panel-actions">
+              <span class="info-pill">Galería · Música · QR</span>
+              <button class="secondary-button" id="organization-save-button" type="button">Guardar organización</button>
+            </div>
+          </header>
+
+          <div class="panel-grid">
+            <article class="admin-card wide-card">
+              <div class="section-toolbar">
+                <p class="card-title">Checklist del día</p>
+                <button class="secondary-button" id="add-organization-task" type="button">+ Agregar tarea</button>
+              </div>
+              <div id="organization-checklist" class="organization-checklist" aria-live="polite"></div>
+            </article>
+
+            <article class="admin-card wide-card">
+              <p class="card-title">Moderación de mensajes</p>
+              <div id="message-admin-list" class="message-admin-list" aria-live="polite"></div>
+            </article>
+
+            <article class="admin-card wide-card">
+              <p class="card-title">Galería del evento</p>
+              <div class="gallery-manager-grid">
+                <div class="gallery-manager-column">
+                  <h3>En el carrusel</h3>
+                  <div id="gallery-manager-list" class="gallery-manager-list" aria-live="polite"></div>
+                </div>
+                <div class="gallery-manager-column">
+                  <h3>Fotos disponibles</h3>
+                  <div id="gallery-available-list" class="gallery-available-list" aria-live="polite"></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="admin-card form-card wide-card">
+              <p class="card-title">Notas de coordinación</p>
+              <div class="form-field-group">
+                <label class="field-label" for="organizationNotes">Recordatorios del evento</label>
+                <textarea id="organizationNotes" name="organizationNotes" rows="5" placeholder="Escribe proveedores, contactos, horarios o recordatorios del evento..."></textarea>
+              </div>
+              <span class="save-status organization-save-status" aria-live="polite"></span>
+            </article>
+
+            <article class="admin-card form-card wide-card">
+              <p class="card-title">Galería y multimedia</p>
+              <div class="form-field-group">
+                <label class="field-label" for="galleryImage">Foto de galería (subir archivo)</label>
+                <input id="galleryImage" name="galleryImage" type="file" accept="image/*" />
+              </div>
+              <div class="form-field-group">
+                <label class="field-label" for="galleryCaption">Leyenda de la foto</label>
+                <input id="galleryCaption" name="galleryCaption" type="text" placeholder="Ej: El comienzo de nuestra historia" />
+              </div>
+              <div class="form-field-group">
+                <label class="field-label" for="galleryUrl">URL de la galería (opcional)</label>
+                <input id="galleryUrl" name="galleryUrl" type="url" placeholder="https://.../foto.jpg" />
+              </div>
+              <div class="form-field-group">
+                <label class="field-label" for="musicFile">Música del sitio</label>
+                <input id="musicFile" name="musicFile" type="file" accept="audio/*" />
+              </div>
+              <div class="form-field-group checkbox-row">
+                <input id="musicAutoplay" name="musicAutoplay" type="checkbox" />
+                <label for="musicAutoplay">Reproducir música automáticamente</label>
+              </div>
+              <div class="form-field-group">
+                <label class="field-label" for="musicPath">Ruta actual de música</label>
+                <input id="musicPath" name="musicPath" type="text" readonly />
+              </div>
+              <div class="form-field-group">
+                <label class="field-label" for="qrAlbum">QR del álbum</label>
+                <input id="qrAlbum" name="qrAlbum" type="url" placeholder="https://..." />
+              </div>
+              <div class="form-field-group">
+                <label class="field-label" for="qrGifts">QR de regalos</label>
+                <input id="qrGifts" name="qrGifts" type="url" placeholder="https://..." />
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="Admin.js"></script>
+  </body>
+</html>

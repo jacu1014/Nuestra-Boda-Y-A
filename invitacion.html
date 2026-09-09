@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07130f" />
+    <meta name="description" content="Invitación de boda de Y & A. Celebramos juntos y te invitamos a confirmar tu asistencia." />
+    <meta property="og:title" content="Y & A | Nuestra invitación" />
+    <meta property="og:description" content="Te invitamos a celebrar nuestro día más especial." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="Fotos/bienvenida.png" />
+    <meta property="og:image:alt" content="Invitación de boda Y & A" />
+    <title>Y &amp; A | Nuestra invitación</title>
+    <link rel="stylesheet" href="invitacion.css" />
+  </head>
+  <body>
+    <main class="invitation-page">
+      <div class="star-field" aria-hidden="true"></div>
+      <div class="meteor-layer" aria-hidden="true"></div>
+
+      <header class="site-header">
+        <a id="couple-logo" class="couple-mark" href="#inicio" aria-label="Volver al inicio">Y <span>&amp;</span> A</a>
+        <div class="header-actions">
+          <a class="admin-access-link" href="admin-login.html" aria-label="Acceso al panel administrativo">Admin</a>
+          <details class="section-menu">
+            <summary aria-label="Abrir menú de secciones">Menú <span class="menu-icon" aria-hidden="true">☰</span></summary>
+            <nav aria-label="Secciones de la invitación">
+              <a href="#inicio">Inicio</a>
+              <a href="#countdown">Cuenta regresiva</a>
+              <a href="#eventos">Ceremonia y recepción</a>
+              <a href="#momentos">Nuestros momentos</a>
+              <a href="#vestimenta">Código de vestimenta</a>
+              <a href="#album">Álbum de fotos</a>
+              <a href="#asistencia">Confirmar asistencia</a>
+              <a href="#regalos">Mesa de regalos</a>
+            </nav>
+          </details>
+        </div>
+      </header>
+ 
+      <section class="welcome-section" id="inicio" aria-labelledby="welcome-title">
+        <div class="welcome-image" role="img" aria-label="Imagen de bienvenida de la invitación"></div>
+        <div class="welcome-overlay"></div>
+        <div class="welcome-content">
+          <p id="hero-eyebrow" class="eyebrow">Nuestra historia escrita en las estrellas</p>
+          <h1 id="welcome-title">Y &amp; A</h1>
+          <p id="welcome-message" class="bible-quote"></p>
+          <p id="welcome-message-reference" class="quote-reference"></p>
+          <a class="scroll-cue" href="#countdown" aria-label="Ver los detalles de la invitación"><span>↓</span></a>
+        </div>
+      </section>
+ 
+      <section class="section countdown-section" id="countdown" aria-labelledby="countdown-title">
+        <p id="countdown-eyebrow" class="eyebrow">El momento se acerca</p>
+        <h2 id="countdown-title">Faltan</h2>
+        <div class="countdown" aria-live="polite">
+          <div><strong id="days">00</strong><span>Días</span></div>
+          <div><strong id="hours">00</strong><span>Horas</span></div>
+          <div><strong id="minutes">00</strong><span>Minutos</span></div>
+          <div><strong id="seconds">00</strong><span>Segundos</span></div>
+        </div>
+        <p id="date-highlight" class="date-highlight"></p>
+      </section>
+
+      <section class="section events-section" id="eventos" aria-labelledby="events-title">
+        <p class="eyebrow">Celebremos juntos</p>
+        <h2 id="events-title">Los detalles del día</h2>
+        <div class="event-grid">
+          <article class="event-card">
+            <div class="venue-thumbnail church-thumbnail" role="img" aria-label="Imagen de la iglesia y miniatura de ubicación de la ceremonia"><div class="venue-art"><span>✦</span><small>Evento</small></div><div class="map-preview"><i></i><b>⌖</b><small>Ver ubicación</small></div></div>
+            <span class="event-icon" aria-hidden="true">✦</span>
+            <p id="ceremony-label" class="card-label">Ceremonia</p>
+            <h3 id="ceremony-title">Donde diremos “sí”</h3>
+            <p id="ceremony-date"></p>
+            <p id="ceremony-location" class="location"></p>
+            <div class="map-links"><a id="ceremony-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener" aria-label="Abrir ubicación de la ceremonia en Google Maps"><span aria-hidden="true">⌖</span> Maps</a><a id="ceremony-waze-link" href="https://www.waze.com" target="_blank" rel="noopener" aria-label="Abrir ubicación de la ceremonia en Waze"><span aria-hidden="true">↗</span> Waze</a></div>
+          </article>
+          <article class="event-card">
+            <div class="venue-thumbnail reception-thumbnail" role="img" aria-label="Imagen del salón y miniatura de ubicación de la recepción"><div class="venue-art"><span>✦</span><small>Evento</small></div><div class="map-preview"><i></i><b>⌖</b><small>Ver ubicación</small></div></div>
+            <span class="event-icon" aria-hidden="true">✦</span>
+            <p id="reception-label" class="card-label">Recepción</p>
+            <h3 id="reception-title">Donde celebraremos</h3>
+            <p id="reception-date"></p>
+            <p id="reception-location" class="location"></p>
+            <div class="map-links"><a id="reception-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener" aria-label="Abrir ubicación de la recepción en Google Maps"><span aria-hidden="true">⌖</span> Maps</a><a id="reception-waze-link" href="https://www.waze.com" target="_blank" rel="noopener" aria-label="Abrir ubicación de la recepción en Waze"><span aria-hidden="true">↗</span> Waze</a></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section rsvp-section" id="asistencia" aria-labelledby="rsvp-title">
+        <p id="rsvp-eyebrow" class="eyebrow">Tu compañía es nuestro mejor regalo</p>
+        <h2 id="rsvp-title">Confirma tu asistencia</h2>
+        <p id="rsvp-description">Ayúdanos a preparar todo con cariño confirmando antes del 15 de marzo.</p>
+        <a id="rsvp-button" class="gold-button" href="#asistencia">Confirmar asistencia <span>↗</span></a>
+      </section>
+
+      <section class="section gallery-section" id="momentos" aria-labelledby="gallery-title">
+        <p id="gallery-eyebrow" class="eyebrow">Nuestros momentos</p>
+        <h2 id="gallery-title">Un poco de nosotros</h2>
+        <div class="carousel" data-carousel>
+          <div class="carousel-track">
+          </div>
+          <div class="carousel-dots" aria-label="Seleccionar foto"></div>
+        </div>
+      </section>
+
+      <section class="section dress-section" id="vestimenta" aria-labelledby="dress-title">
+        <div class="dress-copy"><p id="dress-eyebrow" class="eyebrow">Código de vestimenta</p><h2 id="dress-title">Semi-formal</h2><p id="dress-description">Queremos verlos brillar junto a nosotros en esta noche tan especial.</p></div>
+        <div class="color-guide"><p id="dress-colors-label">Colores reservados</p><div id="dress-swatches" class="swatches" aria-label="Colores del código de vestimenta"></div></div>
+        <div class="dresscode-image">
+          <img src="Fotos/Dresscode.jpg" alt="Ejemplos de vestimenta semi-formal" />
+        </div>
+      </section>
+
+      <section class="section album-section" id="album" aria-labelledby="album-title">
+        <p id="album-eyebrow" class="eyebrow">Tus fotos también cuentan la historia</p>
+        <h2 id="album-title">Comparte tus recuerdos</h2>
+        <p id="album-description">Escanea el código QR para subir las fotografías que tomes durante la celebración.</p>
+        <div class="qr-frame" id="album-qr-frame" aria-label="Código QR del álbum"><span>QR</span><small>Añade aquí tu código QR</small></div>
+        <div class="guest-album"><span>✦</span><p>Comparte tus fotos con nosotros en la celebración.</p></div>
+      </section>
+
+      <section class="section community-section" id="mensajes" aria-labelledby="messages-title">
+        <p class="eyebrow">Tu mensaje</p>
+        <h2 id="messages-title">Deja un recuerdo para nosotros</h2>
+        <div class="community-grid">
+          <form id="message-form" class="community-form">
+            <label>
+              <span>Tu nombre</span>
+              <input type="text" name="nombre" maxlength="80" placeholder="Ej: María y Andrés" required />
+            </label>
+            <label>
+              <span>Mensaje</span>
+              <textarea name="mensaje" maxlength="500" rows="4" placeholder="Escribe un mensaje para los novios..." required></textarea>
+            </label>
+            <button type="submit" class="gold-button small-button">Enviar mensaje</button>
+          </form>
+
+          <div class="community-panel">
+            <div id="message-list" class="message-list" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section song-section" aria-labelledby="song-title">
+        <p class="eyebrow">Playlist</p>
+        <h2 id="song-title">Sugiere una canción</h2>
+        <form id="song-form" class="community-form compact-form">
+          <label>
+            <span>Canción</span>
+            <input type="text" name="cancion" maxlength="120" placeholder="Ej: Perfect - Ed Sheeran" required />
+          </label>
+          <label>
+            <span>Artista</span>
+            <input type="text" name="artista" maxlength="120" placeholder="Opcional" />
+          </label>
+          <label>
+            <span>Sugerido por</span>
+            <input type="text" name="sugeridoPor" maxlength="80" placeholder="Tu nombre" required />
+          </label>
+          <button type="submit" class="gold-button small-button">Enviar sugerencia</button>
+        </form>
+      </section>
+
+      <section class="section gifts-section" id="regalos" aria-labelledby="gifts-title">
+        <p id="gifts-eyebrow" class="eyebrow">Si deseas tener un detalle con nosotros</p>
+        <h2 id="gifts-title">Mesa de regalos</h2>
+        <p id="gifts-description">Tu presencia es el regalo más importante. Si deseas obsequiarnos algo, puedes hacerlo aquí:</p>
+        <div class="gifts-layout">
+          <div class="bank-details"><p>Cuenta de ahorros</p><strong>Banco de los Novios</strong><span>000 000 000 000</span><small>Y &amp; A</small></div>
+          <div class="qr-frame gift-qr-frame" id="gift-qr-frame" aria-label="Código QR de regalos"><span>QR</span><small>Sin código aún</small></div>
+        </div>
+      </section>
+
+      <footer class="site-footer"><p id="footer-couple-mark" class="footer-mark">Y <span>&amp;</span> A</p><p>Con amor, <span id="footer-signature">Y &amp; A</span></p><a href="#inicio">Volver al inicio ↑</a></footer>
+      <a class="rsvp-floating-button" href="#asistencia">Confirmar asistencia</a>
+
+      <audio id="wedding-song" class="wedding-song" autoplay loop preload="auto">
+        <source src="Musica/sabras.mp3" type="audio/mpeg" />
+      </audio>
+      <button id="sound-toggle" class="sound-toggle" type="button" aria-label="Silenciar música" aria-pressed="false"><span class="sound-icon" aria-hidden="true">♫</span><span class="sound-label">Sonido</span></button>
+    </main>
+    <script src="invitacion.js"></script>
+  </body>
+</html>

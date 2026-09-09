@@ -1,0 +1,20 @@
+{
+  "name": "boda-invitacion",
+  "version": "1.0.0",
+  "description": "Invitación de Boda con sistema RSVP y persistencia en Excel",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.19.0",
+    "multer": "^2.3.0",
+    "qrcode": "^1.5.4",
+    "xlsx": "^0.18.5"
+  }
+}

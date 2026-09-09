@@ -1,0 +1,135 @@
+{
+  "brideName": "Yeral",
+  "groomName": "Alejandro",
+  "ceremonyDate": "2026-11-21T11:00",
+  "ceremonyVenue": "Parroquia Inmacula Concepcion de Suba",
+  "ceremonyAddress": "Cra. 90 #146c-40, Suba, Bogotá, Cundinamarca",
+  "ceremonyMap": "https://maps.app.goo.gl/N4cSWYvJvAAuQoBj7",
+  "receptionDate": "2026-11-22T13:00",
+  "receptionVenue": "Por definir",
+  "receptionAddress": "Por definir",
+  "receptionMap": "",
+  "welcomeMessage": "Por tanto, lo que Dios ha unido, que no lo separe nadie.",
+  "welcomeReference": "Marcos 10:9",
+  "colorsPrimary": [
+    {
+      "value": "#163A2B"
+    },
+    {
+      "value": "#D4AF37"
+    },
+    {
+      "value": "#F8F3EA"
+    }
+  ],
+  "colorsDressCode": [
+    {
+      "value": "#163A2B"
+    },
+    {
+      "value": "#D4AF37"
+    },
+    {
+      "value": "#F2D9A0"
+    }
+  ],
+  "gallery": [
+    {
+      "id": "default-1",
+      "src": "Fotos/1.png",
+      "caption": "El comienzo de nuestra historia",
+      "enabled": true
+    },
+    {
+      "id": "default-2",
+      "src": "Fotos/2.png",
+      "caption": "Una sonrisa que lo cambió todo",
+      "enabled": true
+    },
+    {
+      "id": "gallery-1788926164184",
+      "src": "Fotos/10.png",
+      "caption": "",
+      "enabled": true
+    }
+  ],
+  "music": {
+    "file": "Musica/sabras.mp3",
+    "enabled": true,
+    "autoplay": true
+  },
+  "qrAlbum": "",
+  "qrGifts": "",
+  "qrAlbumImage": "",
+  "qrGiftsImage": "",
+  "publicContent": {
+    "heroEyebrow": "Nuestra historia escrita en las estrellas",
+    "heroSubtitle": "Haz Click en el botón para abrir",
+    "heroButton": "Bienvenidos",
+    "menuLabel": "Menú",
+    "countdownEyebrow": "El momento se acerca",
+    "countdownTitle": "Faltan",
+    "eventsEyebrow": "Celebremos juntos",
+    "eventsTitle": "Los detalles del día",
+    "ceremonyLabel": "Ceremonia",
+    "ceremonyTitle": "Donde diremos “sí”",
+    "receptionLabel": "Recepción",
+    "receptionTitle": "Donde celebraremos",
+    "galleryEyebrow": "Nuestros momentos",
+    "galleryTitle": "Un poco de nosotros",
+    "dressEyebrow": "Código de vestimenta",
+    "dressTitle": "Semi-formal",
+    "dressDescription": "Queremos verlos brillar junto a nosotros en esta noche tan especial.",
+    "dressColorsLabel": "Colores reservados",
+    "albumEyebrow": "Tus fotos también cuentan la historia",
+    "albumTitle": "Comparte tus recuerdos",
+    "albumDescription": "Escanea el código QR para subir las fotografías que tomes durante la celebración.",
+    "rsvpEyebrow": "Tu compañía es nuestro mejor regalo",
+    "rsvpTitle": "Confirma tu asistencia",
+    "rsvpDescription": "Ayúdanos a preparar todo con cariño confirmando antes del día del evento.",
+    "rsvpButton": "Confirmar asistencia",
+    "giftsEyebrow": "Si deseas tener un detalle con nosotros",
+    "giftsTitle": "Mesa de regalos",
+    "giftsDescription": "Tu presencia es el regalo más importante. Si deseas obsequiarnos algo, puedes hacerlo aquí:",
+    "giftsButton": "Ver regalo",
+    "musicLabel": "Música",
+    "mapLabel": "Maps",
+    "wazeLabel": "Waze",
+    "seeLocationLabel": "Ver ubicación"
+  },
+  "theme": {
+    "colors": {
+      "primary": "#163a2b",
+      "accent": "#d4af37",
+      "background": "#f8f3ea",
+      "text": "#163a2b"
+    },
+    "fonts": {
+      "heading": "Bodoni 72",
+      "body": "Trebuchet MS"
+    }
+  },
+  "organization": {
+    "notes": "Recordatorio para coordinación del evento",
+    "checklist": [
+      {
+        "id": "org-1788927326565-aed692",
+        "title": "Confirmación de asistencia",
+        "owner": "",
+        "done": false
+      },
+      {
+        "id": "org-1788927326565-2ad1d6",
+        "title": "Confirmar estrategia musical",
+        "owner": "Pareja",
+        "done": false
+      },
+      {
+        "id": "org-1788927326565-de42e6",
+        "title": "Revisión final de la decoración",
+        "owner": "",
+        "done": false
+      }
+    ]
+  }
+}

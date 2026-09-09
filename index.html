@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Y &amp; A | Nuestra invitación</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <div class="space" aria-hidden="true">
+        <canvas id="star-canvas"></canvas>
+      </div>
+
+      <section class="hero-content" aria-labelledby="typed-title">
+        <p class="eyebrow">Una historia escrita en las estrellas</p>
+        <h1 id="typed-title" class="title">
+          <span class="sr-only">Y &amp; A</span>
+          <canvas id="title-canvas" aria-hidden="true"></canvas>
+        </h1>
+        <p class="subtitle">Haz Click en el botón para abrir</p>
+        <button id="invitation-btn" class="btn-invitation" type="button" aria-label="Abrir la invitación" aria-expanded="false">
+          <span>Bienvenidos</span>
+          <span class="button-star" aria-hidden="true">✦</span>
+        </button>
+        <a class="admin-access-link" href="admin-login.html" aria-label="Acceso al panel administrativo">Panel administrativo</a>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
