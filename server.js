@@ -12,8 +12,13 @@ const { createClient } = require('@supabase/supabase-js');
 
 dotenv.config();
 
+const isVercelRuntime = Boolean(process.env.VERCEL);
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-me-now';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'boda-dev-secret-change-me';
+
 if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || !process.env.SESSION_SECRET) {
-  throw new Error('Falta la configuración de ADMIN_USERNAME, ADMIN_PASSWORD o SESSION_SECRET en el archivo .env.');
+  console.warn('Advertencia: faltan ADMIN_USERNAME, ADMIN_PASSWORD o SESSION_SECRET. Se usaron valores temporales para que la app no falle en Vercel; configura estas variables reales en el dashboard de Vercel.');
 }
 
 function normalizeSupabaseUrl(url) {
@@ -31,11 +36,10 @@ const supabase = SUPABASE_URL && supabaseKey
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const BASE_RUNTIME_DIR = isVercelRuntime ? '/tmp' : __dirname;
 const EXCEL_PATH = path.join(__dirname, 'Asistencia', 'Asistencia.xlsx');
-const BACKUP_DIR = path.join(__dirname, 'Asistencia', 'backups');
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
+const BACKUP_DIR = path.join(BASE_RUNTIME_DIR, 'Asistencia', 'backups');
+const UPLOADS_DIR = path.join(BASE_RUNTIME_DIR, 'uploads');
 const PHOTO_UPLOAD_DIR = path.join(UPLOADS_DIR, 'photos');
 const MUSIC_UPLOAD_DIR = path.join(UPLOADS_DIR, 'music');
 const QR_UPLOAD_DIR = path.join(UPLOADS_DIR, 'qr');
@@ -163,12 +167,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
+    secure: isVercelRuntime,
     maxAge: 1000 * 60 * 60 * 8
   }
 }));
