@@ -1147,6 +1147,10 @@ app.get('*', (req, res) => {
 
 ensureExcelSheets();
 
-app.listen(PORT, () => {
-  console.log(`Servidor de confirmación de boda corriendo en http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor de confirmación de boda corriendo en http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

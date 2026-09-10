@@ -186,8 +186,34 @@ Recomendación ideal:
 - GitHub: repositorio y versionado
 - Supabase: base de datos y storage
 - Render, Railway o VPS: backend Node.js
+- Vercel: viable si se configura con `vercel.json` y el backend se exporta como app Express compatible con serverless
 
 No subas `.env`, `node_modules`, `uploads` ni archivos locales sensibles al repositorio.
+
+### 7) Despliegue en Vercel
+
+Este proyecto sí puede subirse a Vercel, pero requiere que el backend se exporte como una app Express y no inicie un puerto directamente al cargar en el runtime de Vercel.
+
+Archivo incluido:
+
+- `vercel.json`
+
+Configuración recomendada:
+
+1. Conecta el repositorio de GitHub a Vercel.
+2. Selecciona el proyecto y usa el repositorio raíz.
+3. En Variables de entorno agrega:
+   - `ADMIN_USERNAME`
+   - `ADMIN_PASSWORD`
+   - `SESSION_SECRET`
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `SUPABASE_BUCKET`
+4. Asegúrate de que el proyecto use Node.js y no haga `npm run build` si no existe compilación.
+5. Haz el primer deploy.
+
+Nota: Vercel no conserva el filesystem local. Los uploads locales y el Excel local deben tratarse como fallback de desarrollo o migrarse a Supabase Storage/DB para producción.
 
 ## Funcionalidades principales
 
