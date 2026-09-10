@@ -1152,6 +1152,17 @@ app.post('/api/admin/logout', (req, res) => {
   });
 });
 
+app.get(/\.[a-z0-9]+$/i, (req, res) => {
+  const assetPath = req.path.replace(/^\//, '');
+  const absolutePath = path.join(__dirname, assetPath);
+
+  if (!fs.existsSync(absolutePath)) {
+    return res.status(404).send('Asset not found');
+  }
+
+  return res.sendFile(absolutePath);
+});
+
 // Ruta comodín para servir invitacion.html si acceden a la raíz o rutas no encontradas
 app.get('*', (req, res) => {
   if (req.path === '/favicon.ico') {
