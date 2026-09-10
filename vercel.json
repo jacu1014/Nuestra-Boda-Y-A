@@ -13,6 +13,8 @@
     { "src": "/admin", "dest": "/server.js" },
     { "src": "/admin-login.html", "dest": "/server.js" },
     { "src": "/Admin.html", "dest": "/server.js" },
+    { "src": "/invitacion.html", "dest": "/server.js" },
+    { "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|webp|mp3|mp4|ico|woff|woff2|ttf|eot))", "dest": "/$1" },
     { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
