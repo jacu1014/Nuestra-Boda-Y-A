@@ -37,7 +37,7 @@ const supabase = SUPABASE_URL && supabaseKey
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const BASE_RUNTIME_DIR = isVercelRuntime ? '/tmp' : __dirname;
-const EXCEL_PATH = path.join(__dirname, 'Asistencia', 'Asistencia.xlsx');
+const EXCEL_PATH = path.join(BASE_RUNTIME_DIR, 'Asistencia', 'Asistencia.xlsx');
 const BACKUP_DIR = path.join(BASE_RUNTIME_DIR, 'Asistencia', 'backups');
 const UPLOADS_DIR = path.join(BASE_RUNTIME_DIR, 'uploads');
 const PHOTO_UPLOAD_DIR = path.join(UPLOADS_DIR, 'photos');
@@ -464,9 +464,19 @@ function writeGuestsToExcel(updatedGuests) {
   xlsx.writeFile(workbook, EXCEL_PATH);
 }
 
-const SETTINGS_PATH = path.join(__dirname, 'wedding-settings.json');
+const SETTINGS_PATH = path.join(BASE_RUNTIME_DIR, 'wedding-settings.json');
 
 function ensureExcelSheets() {
+  if (isVercelRuntime || hasSupabase()) {
+    return null;
+  }
+
+  try {
+    fs.accessSync(BASE_RUNTIME_DIR, fs.constants.W_OK);
+  } catch (error) {
+    return null;
+  }
+
   let workbook;
   if (!fs.existsSync(EXCEL_PATH)) {
     workbook = xlsx.utils.book_new();
@@ -1150,7 +1160,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'invitacion.html'));
 });
 
-ensureExcelSheets();
+if (!isVercelRuntime) {
+  ensureExcelSheets();
+}
 
 if (require.main === module) {
   app.listen(PORT, () => {
