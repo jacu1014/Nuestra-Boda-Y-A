@@ -8,6 +8,7 @@ const session = require('express-session');
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const QRCode = require('qrcode');
+const { createClient } = require('@supabase/supabase-js');
 
 dotenv.config();
 

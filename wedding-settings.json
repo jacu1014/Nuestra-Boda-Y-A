@@ -1,14 +1,16 @@
 {
   "brideName": "Yeral",
-  "groomName": "Alejandro",
+  "groomName": "Alejo",
   "ceremonyDate": "2026-11-21T11:00",
   "ceremonyVenue": "Parroquia Inmacula Concepcion de Suba",
   "ceremonyAddress": "Cra. 90 #146c-40, Suba, Bogotá, Cundinamarca",
   "ceremonyMap": "https://maps.app.goo.gl/N4cSWYvJvAAuQoBj7",
+  "ceremonyImage": "",
   "receptionDate": "2026-11-22T13:00",
   "receptionVenue": "Por definir",
   "receptionAddress": "Por definir",
   "receptionMap": "",
+  "receptionImage": "",
   "welcomeMessage": "Por tanto, lo que Dios ha unido, que no lo separe nadie.",
   "welcomeReference": "Marcos 10:9",
   "colorsPrimary": [
@@ -113,19 +115,19 @@
     "notes": "Recordatorio para coordinación del evento",
     "checklist": [
       {
-        "id": "org-1788927326565-aed692",
+        "id": "org-1788998696711-7269da",
         "title": "Confirmación de asistencia",
         "owner": "",
         "done": false
       },
       {
-        "id": "org-1788927326565-2ad1d6",
+        "id": "org-1788998696711-4150ea",
         "title": "Confirmar estrategia musical",
         "owner": "Pareja",
         "done": false
       },
       {
-        "id": "org-1788927326565-de42e6",
+        "id": "org-1788998696711-7acd45",
         "title": "Revisión final de la decoración",
         "owner": "",
         "done": false
