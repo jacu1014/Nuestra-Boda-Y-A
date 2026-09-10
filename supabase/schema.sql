@@ -76,6 +76,7 @@ alter table public.messages enable row level security;
 alter table public.songs enable row level security;
 alter table public.settings enable row level security;
 
+-- Public read is intentional for the invitation page; writes happen server-side through the service role key.
 drop policy if exists "Allow public read on guest data" on public.guests;
 create policy "Allow public read on guest data"
 on public.guests
@@ -100,54 +101,31 @@ on public.messages
 for select
 using (true);
 
+-- The backend runs on the server with the service role key, so it can write without exposing the secret to the browser.
 drop policy if exists "Allow app write on settings" on public.settings;
 create policy "Allow app write on settings"
 on public.settings
-for insert
-with check (true);
-
-drop policy if exists "Allow app update on settings" on public.settings;
-create policy "Allow app update on settings"
-on public.settings
-for update
+for all
 using (true)
 with check (true);
 
 drop policy if exists "Allow app write on guests" on public.guests;
 create policy "Allow app write on guests"
 on public.guests
-for insert
-with check (true);
-
-drop policy if exists "Allow app update on guests" on public.guests;
-create policy "Allow app update on guests"
-on public.guests
-for update
+for all
 using (true)
 with check (true);
 
 drop policy if exists "Allow app write on songs" on public.songs;
 create policy "Allow app write on songs"
 on public.songs
-for insert
-with check (true);
-
-drop policy if exists "Allow app update on songs" on public.songs;
-create policy "Allow app update on songs"
-on public.songs
-for update
+for all
 using (true)
 with check (true);
 
 drop policy if exists "Allow app write on messages" on public.messages;
 create policy "Allow app write on messages"
 on public.messages
-for insert
-with check (true);
-
-drop policy if exists "Allow app update on messages" on public.messages;
-create policy "Allow app update on messages"
-on public.messages
-for update
+for all
 using (true)
 with check (true);
