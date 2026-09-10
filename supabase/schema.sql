@@ -51,7 +51,8 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace trigger trg_guests_updated_at
+drop trigger if exists trg_guests_updated_at on public.guests;
+create trigger trg_guests_updated_at
 before update on public.guests
 for each row
 execute function public.touch_updated_at();
@@ -64,7 +65,8 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace trigger trg_settings_updated_at
+drop trigger if exists trg_settings_updated_at on public.settings;
+create trigger trg_settings_updated_at
 before update on public.settings
 for each row
 execute function public.touch_settings_updated_at();
@@ -74,65 +76,77 @@ alter table public.messages enable row level security;
 alter table public.songs enable row level security;
 alter table public.settings enable row level security;
 
-create policy if not exists "Allow public read on guest data"
+drop policy if exists "Allow public read on guest data" on public.guests;
+create policy "Allow public read on guest data"
 on public.guests
 for select
 using (true);
 
-create policy if not exists "Allow public read on settings"
+drop policy if exists "Allow public read on settings" on public.settings;
+create policy "Allow public read on settings"
 on public.settings
 for select
 using (true);
 
-create policy if not exists "Allow public read on songs"
+drop policy if exists "Allow public read on songs" on public.songs;
+create policy "Allow public read on songs"
 on public.songs
 for select
 using (true);
 
-create policy if not exists "Allow public read on messages"
+drop policy if exists "Allow public read on messages" on public.messages;
+create policy "Allow public read on messages"
 on public.messages
 for select
 using (true);
 
-create policy if not exists "Allow app write on settings"
+drop policy if exists "Allow app write on settings" on public.settings;
+create policy "Allow app write on settings"
 on public.settings
 for insert
 with check (true);
 
-create policy if not exists "Allow app update on settings"
+drop policy if exists "Allow app update on settings" on public.settings;
+create policy "Allow app update on settings"
 on public.settings
 for update
 using (true)
 with check (true);
 
-create policy if not exists "Allow app write on guests"
+drop policy if exists "Allow app write on guests" on public.guests;
+create policy "Allow app write on guests"
 on public.guests
 for insert
 with check (true);
 
-create policy if not exists "Allow app update on guests"
+drop policy if exists "Allow app update on guests" on public.guests;
+create policy "Allow app update on guests"
 on public.guests
 for update
 using (true)
 with check (true);
 
-create policy if not exists "Allow app write on songs"
+drop policy if exists "Allow app write on songs" on public.songs;
+create policy "Allow app write on songs"
 on public.songs
 for insert
 with check (true);
 
-create policy if not exists "Allow app update on songs"
+drop policy if exists "Allow app update on songs" on public.songs;
+create policy "Allow app update on songs"
 on public.songs
 for update
 using (true)
 with check (true);
 
-create policy if not exists "Allow app write on messages"
+drop policy if exists "Allow app write on messages" on public.messages;
+create policy "Allow app write on messages"
 on public.messages
 for insert
 with check (true);
 
-create policy if not exists "Allow app update on messages"
+drop policy if exists "Allow app update on messages" on public.messages;
+create policy "Allow app update on messages"
 on public.messages
 for update
 using (true)

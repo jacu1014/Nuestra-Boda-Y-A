@@ -16,6 +16,19 @@ if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || !process.env.S
   throw new Error('Falta la configuración de ADMIN_USERNAME, ADMIN_PASSWORD o SESSION_SECRET en el archivo .env.');
 }
 
+function normalizeSupabaseUrl(url) {
+  if (!url) return '';
+  return String(url).trim().replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
+}
+
+const SUPABASE_URL = normalizeSupabaseUrl(process.env.SUPABASE_URL || '');
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const supabase = SUPABASE_URL && supabaseKey
+  ? createClient(SUPABASE_URL, supabaseKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    })
+  : null;
+
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const EXCEL_PATH = path.join(__dirname, 'Asistencia', 'Asistencia.xlsx');
@@ -161,6 +174,10 @@ app.use(session({
 }));
 app.use(express.static(__dirname));
 
+function hasSupabase() {
+  return Boolean(SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY) && supabase);
+}
+
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdminAuthenticated) {
     return next();
@@ -222,6 +239,60 @@ function readGuestsFromExcel() {
   }));
 }
 
+async function readGuestsFromSupabase() {
+  if (!hasSupabase()) {
+    return readGuestsFromExcel();
+  }
+
+  const { data, error } = await supabase.from('guests').select('*').order('id', { ascending: true });
+  if (error) {
+    throw new Error(error.message || 'No se pudieron cargar los invitados desde Supabase.');
+  }
+
+  return (data || []).map((guest) => ({
+    ID: guest.id,
+    Primer_nombre: guest.primer_nombre || '',
+    Segundo_nombre: guest.segundo_nombre || '',
+    Primer_apellido: guest.primer_apellido || '',
+    Segundo_apellido: guest.segundo_apellido || '',
+    De_parte: guest.de_parte || '',
+    Tipo_invitacion: guest.tipo_invitacion || '',
+    ID_relacionado: guest.id_relacionado || '',
+    Confirmacion: guest.confirmacion || 'Pendiente'
+  }));
+}
+
+async function readGuestRecords() {
+  if (hasSupabase()) {
+    return readGuestsFromSupabase();
+  }
+  return readGuestsFromExcel();
+}
+
+async function writeGuestRecords(updatedGuests) {
+  if (hasSupabase()) {
+    const rows = updatedGuests.map((guest) => ({
+      id: guest.ID === undefined || guest.ID === null || guest.ID === '' ? null : Number(guest.ID),
+      primer_nombre: guest.Primer_nombre || '',
+      segundo_nombre: guest.Segundo_nombre || '',
+      primer_apellido: guest.Primer_apellido || '',
+      segundo_apellido: guest.Segundo_apellido || '',
+      de_parte: guest.De_parte || '',
+      tipo_invitacion: guest.Tipo_invitacion || '',
+      id_relacionado: guest.ID_relacionado || '',
+      confirmacion: guest.Confirmacion || 'Pendiente'
+    })).filter((row) => row.id !== null || Boolean(row.primer_nombre || row.primer_apellido || row.id_relacionado || row.de_parte || row.tipo_invitacion));
+
+    const { error } = await supabase.from('guests').upsert(rows, { onConflict: 'id' });
+    if (error) {
+      throw new Error(error.message || 'No se pudieron guardar los invitados en Supabase.');
+    }
+    return;
+  }
+
+  writeGuestsToExcel(updatedGuests);
+}
+
 function readSongsFromExcel() {
   ensureExcelSheets();
   const workbook = xlsx.readFile(EXCEL_PATH);
@@ -231,6 +302,52 @@ function readSongsFromExcel() {
   }
   const sheet = workbook.Sheets[sheetName];
   return xlsx.utils.sheet_to_json(sheet, { defval: '' });
+}
+
+async function readSongsFromSupabase() {
+  if (!hasSupabase()) {
+    return readSongsFromExcel();
+  }
+
+  const { data, error } = await supabase.from('songs').select('*').order('created_at', { ascending: false });
+  if (error) {
+    throw new Error(error.message || 'No se pudieron cargar las canciones desde Supabase.');
+  }
+
+  return (data || []).map((song) => ({
+    ID: song.id,
+    Cancion: song.cancion || '',
+    Artista: song.artista || '',
+    Sugerido_Por: song.sugerido_por || '',
+    Fecha: song.created_at || new Date().toISOString()
+  }));
+}
+
+async function readSongsRecords() {
+  if (hasSupabase()) {
+    return readSongsFromSupabase();
+  }
+  return readSongsFromExcel();
+}
+
+async function writeSongsRecords(updatedSongs) {
+  if (hasSupabase()) {
+    const rows = updatedSongs.map((song) => ({
+      id: song.ID === undefined || song.ID === null || song.ID === '' ? null : Number(song.ID),
+      cancion: song.Cancion || '',
+      artista: song.Artista || '',
+      sugerido_por: song.Sugerido_Por || '',
+      created_at: song.Fecha || new Date().toISOString()
+    })).filter((song) => song.cancion || song.sugerido_por);
+
+    const { error } = await supabase.from('songs').upsert(rows, { onConflict: 'id' });
+    if (error) {
+      throw new Error(error.message || 'No se pudieron guardar las canciones en Supabase.');
+    }
+    return;
+  }
+
+  writeSongsToExcel(updatedSongs);
 }
 
 function backupExcelFile() {
@@ -271,6 +388,52 @@ function readMessagesFromExcel() {
   }
   const sheet = workbook.Sheets[sheetName];
   return xlsx.utils.sheet_to_json(sheet, { defval: '' });
+}
+
+async function readMessagesFromSupabase() {
+  if (!hasSupabase()) {
+    return readMessagesFromExcel();
+  }
+
+  const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+  if (error) {
+    throw new Error(error.message || 'No se pudieron cargar los mensajes desde Supabase.');
+  }
+
+  return (data || []).map((message) => ({
+    ID: message.id,
+    Nombre: message.nombre || '',
+    Mensaje: message.mensaje || '',
+    Fecha: message.created_at || new Date().toISOString(),
+    Visible: message.visible === false ? 'No' : 'Sí'
+  }));
+}
+
+async function readMessagesRecords() {
+  if (hasSupabase()) {
+    return readMessagesFromSupabase();
+  }
+  return readMessagesFromExcel();
+}
+
+async function writeMessagesRecords(updatedMessages) {
+  if (hasSupabase()) {
+    const rows = updatedMessages.map((message) => ({
+      id: message.ID === undefined || message.ID === null || message.ID === '' ? null : Number(message.ID),
+      nombre: message.Nombre || '',
+      mensaje: message.Mensaje || '',
+      visible: String(message.Visible || 'Sí').toLowerCase() !== 'no',
+      created_at: message.Fecha || new Date().toISOString()
+    })).filter((message) => message.nombre && message.mensaje);
+
+    const { error } = await supabase.from('messages').upsert(rows, { onConflict: 'id' });
+    if (error) {
+      throw new Error(error.message || 'No se pudieron guardar los mensajes en Supabase.');
+    }
+    return;
+  }
+
+  writeMessagesToExcel(updatedMessages);
 }
 
 function writeMessagesToExcel(updatedMessages) {
@@ -453,7 +616,20 @@ function normalizeSettings(settings) {
   };
 }
 
-function readWeddingSettings() {
+async function readWeddingSettings() {
+  if (hasSupabase()) {
+    try {
+      const { data, error } = await supabase.from('settings').select('*').eq('key', 'wedding-config').maybeSingle();
+      if (error) {
+        throw new Error(error.message || 'No se pudieron leer los ajustes desde Supabase.');
+      }
+      const value = data && data.value ? data.value : {};
+      return normalizeSettings(value);
+    } catch (error) {
+      console.error('No se pudieron leer los ajustes de la boda desde Supabase:', error);
+    }
+  }
+
   try {
     if (!fs.existsSync(SETTINGS_PATH)) {
       return { ...DEFAULT_SETTINGS };
@@ -469,8 +645,23 @@ function readWeddingSettings() {
   }
 }
 
-function writeWeddingSettings(settings) {
+async function writeWeddingSettings(settings) {
   const normalized = normalizeSettings(settings);
+
+  if (hasSupabase()) {
+    const { error } = await supabase.from('settings').upsert({
+      key: 'wedding-config',
+      value: normalized,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'key' });
+
+    if (error) {
+      throw new Error(error.message || 'No se pudieron guardar los ajustes en Supabase.');
+    }
+
+    return normalized;
+  }
+
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(normalized, null, 2), 'utf8');
   return normalized;
 }
@@ -495,17 +686,19 @@ async function generateQrImage(link, outputName) {
   return `/uploads/qr/${outputName}`;
 }
 
-app.get('/api/settings', (req, res) => {
-  res.json(readWeddingSettings());
+app.get('/api/settings', async (req, res) => {
+  const settings = await readWeddingSettings();
+  res.json(settings);
 });
 
-app.get('/api/public', (req, res) => {
-  res.json(readWeddingSettings());
+app.get('/api/public', async (req, res) => {
+  const settings = await readWeddingSettings();
+  res.json(settings);
 });
 
 app.put('/api/settings', requireAdmin, express.json(), async (req, res) => {
   const payload = req.body || {};
-  const existingSettings = readWeddingSettings();
+  const existingSettings = await readWeddingSettings();
   const settings = {
     brideName: String(payload.brideName || payload.bride_name || '').trim(),
     groomName: String(payload.groomName || payload.groom_name || '').trim(),
@@ -549,7 +742,8 @@ app.put('/api/settings', requireAdmin, express.json(), async (req, res) => {
     settings.qrGiftsImage = '';
   }
 
-  res.json(writeWeddingSettings(settings));
+  const savedSettings = await writeWeddingSettings(settings);
+  res.json(savedSettings);
 });
 
 app.post('/api/upload/photo', requireAdmin, upload.single('file'), (req, res) => {
@@ -576,14 +770,14 @@ app.post('/api/upload/qr', requireAdmin, upload.single('file'), (req, res) => {
   return res.json({ ok: true, url: fileUrl, filename: req.file.filename });
 });
 
-app.get('/api/gallery/available', requireAdmin, (req, res) => {
+app.get('/api/gallery/available', requireAdmin, async (req, res) => {
   try {
     const galleryRoot = path.join(__dirname, 'Fotos');
     if (!fs.existsSync(galleryRoot)) {
       return res.json([]);
     }
 
-    const currentSettings = readWeddingSettings();
+    const currentSettings = await readWeddingSettings();
     const registered = new Set((Array.isArray(currentSettings.gallery) ? currentSettings.gallery : []).map((item) => item && item.src).filter(Boolean));
     const imageExtensions = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg']);
 
@@ -608,9 +802,9 @@ app.get('/api/gallery/available', requireAdmin, (req, res) => {
   }
 });
 
-app.get('/api/canciones', (req, res) => {
+app.get('/api/canciones', async (req, res) => {
   try {
-    const songs = readSongsFromExcel().sort((a, b) => new Date(b.Fecha || 0) - new Date(a.Fecha || 0));
+    const songs = (await readSongsRecords()).sort((a, b) => new Date(b.Fecha || 0) - new Date(a.Fecha || 0));
     res.json(songs);
   } catch (error) {
     console.error('Error al listar canciones:', error);
@@ -618,7 +812,7 @@ app.get('/api/canciones', (req, res) => {
   }
 });
 
-app.post('/api/canciones', songRateLimit, (req, res) => {
+app.post('/api/canciones', songRateLimit, async (req, res) => {
   try {
     const cancion = String(req.body.cancion || '').trim();
     const artista = String(req.body.artista || '').trim();
@@ -628,7 +822,7 @@ app.post('/api/canciones', songRateLimit, (req, res) => {
       return res.status(400).json({ error: 'La canción y el nombre del sugerente son obligatorios.' });
     }
 
-    const songs = readSongsFromExcel();
+    const songs = await readSongsRecords();
     const nextId = songs.reduce((max, song) => Math.max(max, Number(song.ID) || 0), 0) + 1;
     const record = {
       ID: nextId,
@@ -639,7 +833,7 @@ app.post('/api/canciones', songRateLimit, (req, res) => {
     };
 
     songs.push(record);
-    writeSongsToExcel(songs);
+    await writeSongsRecords(songs);
     return res.status(201).json({ success: true, song: record });
   } catch (error) {
     console.error('Error al guardar canción:', error);
@@ -647,9 +841,9 @@ app.post('/api/canciones', songRateLimit, (req, res) => {
   }
 });
 
-app.get('/api/mensajes', (req, res) => {
+app.get('/api/mensajes', async (req, res) => {
   try {
-    const messages = readMessagesFromExcel().filter((message) => {
+    const messages = (await readMessagesRecords()).filter((message) => {
       const visible = String(message.Visible || '').trim();
       return visible.toLowerCase() === 'sí' || visible.toLowerCase() === 'si' || visible.toLowerCase() === 'yes' || visible.toLowerCase() === 'true';
     }).sort((a, b) => new Date(b.Fecha || 0) - new Date(a.Fecha || 0));
@@ -660,9 +854,9 @@ app.get('/api/mensajes', (req, res) => {
   }
 });
 
-app.get('/api/mensajes-admin', requireAdmin, (req, res) => {
+app.get('/api/mensajes-admin', requireAdmin, async (req, res) => {
   try {
-    const messages = readMessagesFromExcel().sort((a, b) => new Date(b.Fecha || 0) - new Date(a.Fecha || 0));
+    const messages = (await readMessagesRecords()).sort((a, b) => new Date(b.Fecha || 0) - new Date(a.Fecha || 0));
     res.json(messages);
   } catch (error) {
     console.error('Error al listar mensajes para administración:', error);
@@ -670,7 +864,7 @@ app.get('/api/mensajes-admin', requireAdmin, (req, res) => {
   }
 });
 
-app.post('/api/mensajes', messageRateLimit, (req, res) => {
+app.post('/api/mensajes', messageRateLimit, async (req, res) => {
   try {
     const nombre = String(req.body.nombre || '').trim();
     const mensaje = String(req.body.mensaje || '').trim();
@@ -683,7 +877,7 @@ app.post('/api/mensajes', messageRateLimit, (req, res) => {
       return res.status(400).json({ error: 'El mensaje es demasiado largo. Máximo 500 caracteres.' });
     }
 
-    const messages = readMessagesFromExcel();
+    const messages = await readMessagesRecords();
     const nextId = messages.reduce((max, item) => Math.max(max, Number(item.ID) || 0), 0) + 1;
     const record = {
       ID: nextId,
@@ -694,7 +888,7 @@ app.post('/api/mensajes', messageRateLimit, (req, res) => {
     };
 
     messages.push(record);
-    writeMessagesToExcel(messages);
+    await writeMessagesRecords(messages);
     return res.status(201).json({ success: true, message: record });
   } catch (error) {
     console.error('Error al guardar mensaje:', error);
@@ -702,7 +896,7 @@ app.post('/api/mensajes', messageRateLimit, (req, res) => {
   }
 });
 
-app.put('/api/mensajes/:id', requireAdmin, (req, res) => {
+app.put('/api/mensajes/:id', requireAdmin, async (req, res) => {
   try {
     const messageId = String(req.params.id || '').trim();
     const nextVisible = String(req.body.Visible || req.body.visible || 'Sí').trim();
@@ -710,14 +904,14 @@ app.put('/api/mensajes/:id', requireAdmin, (req, res) => {
       return res.status(400).json({ error: 'ID faltante' });
     }
 
-    const messages = readMessagesFromExcel();
+    const messages = await readMessagesRecords();
     const index = messages.findIndex((message) => String(message.ID) === messageId);
     if (index === -1) {
       return res.status(404).json({ error: 'Mensaje no encontrado' });
     }
 
     messages[index].Visible = nextVisible === 'No' ? 'No' : 'Sí';
-    writeMessagesToExcel(messages);
+    await writeMessagesRecords(messages);
     return res.json({ success: true, message: messages[index] });
   } catch (error) {
     console.error('Error al actualizar mensaje:', error);
@@ -726,14 +920,14 @@ app.put('/api/mensajes/:id', requireAdmin, (req, res) => {
 });
 
 // API: Buscar invitados pendientes por coincidencia parcial en su nombre completo
-app.get('/api/invitados', (req, res) => {
+app.get('/api/invitados', async (req, res) => {
   try {
     const query = normalizeText(req.query.q || '');
     if (!query) {
       return res.json([]);
     }
 
-    const guests = readGuestsFromExcel();
+    const guests = await readGuestRecords();
     const filtered = guests.filter((guest) => {
       if (!isPendingGuest(guest)) {
         return false;
@@ -759,9 +953,9 @@ app.get('/api/invitados', (req, res) => {
   }
 });
 
-app.get('/api/guest-stats', (req, res) => {
+app.get('/api/guest-stats', async (req, res) => {
   try {
-    const guests = readGuestsFromExcel();
+    const guests = await readGuestRecords();
     const total = guests.length;
     const confirmed = guests.filter((guest) => {
       const status = guestStatus(guest);
@@ -776,11 +970,11 @@ app.get('/api/guest-stats', (req, res) => {
   }
 });
 
-app.get('/api/invitados-admin', (req, res) => {
+app.get('/api/invitados-admin', async (req, res) => {
   try {
     const query = normalizeText(req.query.q || '');
     const statusFilter = String(req.query.status || 'all').toLowerCase();
-    const guests = readGuestsFromExcel();
+    const guests = await readGuestRecords();
     const filtered = guests.filter((guest) => {
       const matchesStatus = (() => {
         const status = guestStatus(guest).toLowerCase();
@@ -816,7 +1010,7 @@ app.get('/api/invitados-admin', (req, res) => {
   }
 });
 
-app.patch('/api/invitados/:id', (req, res) => {
+app.patch('/api/invitados/:id', async (req, res) => {
   try {
     const guestId = String(req.params.id || '').trim();
     const changes = req.body || {};
@@ -824,7 +1018,7 @@ app.patch('/api/invitados/:id', (req, res) => {
       return res.status(400).json({ error: 'ID faltante' });
     }
 
-    const guests = readGuestsFromExcel();
+    const guests = await readGuestRecords();
     const guestIndex = guests.findIndex((guest) => String(guest.ID) === guestId);
     if (guestIndex === -1) {
       return res.status(404).json({ error: 'Invitado no encontrado' });
@@ -843,7 +1037,7 @@ app.patch('/api/invitados/:id', (req, res) => {
       guests[guestIndex].De_parte = String(changes.De_parte).trim();
     }
 
-    writeGuestsToExcel(guests);
+    await writeGuestRecords(guests);
     res.json({ success: true, guest: guests[guestIndex] });
   } catch (error) {
     console.error('Error al actualizar invitado:', error);
@@ -852,14 +1046,14 @@ app.patch('/api/invitados/:id', (req, res) => {
 });
 
 // API: Consultar el grupo de un invitado mediante su ID_relacionado
-app.get('/api/grupo/:idRelacionado', (req, res) => {
+app.get('/api/grupo/:idRelacionado', async (req, res) => {
   try {
     const idRelacionado = String(req.params.idRelacionado || '').trim();
     if (!idRelacionado) {
       return res.status(400).json({ error: 'ID_relacionado no proporcionado' });
     }
 
-    const guests = readGuestsFromExcel();
+    const guests = await readGuestRecords();
     const groupGuests = guests.filter((guest) => {
       if (!isPendingGuest(guest)) {
         return false;
@@ -875,14 +1069,14 @@ app.get('/api/grupo/:idRelacionado', (req, res) => {
 });
 
 // API: Registrar confirmaciones
-app.post('/api/confirmar', (req, res) => {
+app.post('/api/confirmar', async (req, res) => {
   try {
     const confirmaciones = req.body;
     if (!Array.isArray(confirmaciones) || confirmaciones.length === 0) {
       return res.status(400).json({ error: 'Datos de confirmación inválidos' });
     }
 
-    const guests = readGuestsFromExcel();
+    const guests = await readGuestRecords();
     let updatedCount = 0;
 
     confirmaciones.forEach(({ id, asistencia }) => {
@@ -895,7 +1089,7 @@ app.post('/api/confirmar', (req, res) => {
     });
 
     if (updatedCount > 0) {
-      writeGuestsToExcel(guests);
+      await writeGuestRecords(guests);
     }
 
     res.json({ success: true, updatedCount });
