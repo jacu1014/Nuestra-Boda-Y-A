@@ -36,6 +36,7 @@ const supabase = SUPABASE_URL && supabaseKey
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const PUBLIC_DIR = path.join(__dirname, 'public');
 const BASE_RUNTIME_DIR = isVercelRuntime ? '/tmp' : __dirname;
 const EXCEL_PATH = path.join(BASE_RUNTIME_DIR, 'Asistencia', 'Asistencia.xlsx');
 const BACKUP_DIR = path.join(BASE_RUNTIME_DIR, 'Asistencia', 'backups');
@@ -177,7 +178,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 8
   }
 }));
-app.use(express.static(__dirname));
+app.use(express.static(PUBLIC_DIR));
 
 function hasSupabase() {
   return Boolean(SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY) && supabase);
@@ -787,7 +788,7 @@ app.post('/api/upload/qr', requireAdmin, upload.single('file'), (req, res) => {
 
 app.get('/api/gallery/available', requireAdmin, async (req, res) => {
   try {
-    const galleryRoot = path.join(__dirname, 'Fotos');
+    const galleryRoot = path.join(PUBLIC_DIR, 'Fotos');
     if (!fs.existsSync(galleryRoot)) {
       return res.json([]);
     }
@@ -1115,11 +1116,11 @@ app.post('/api/confirmar', async (req, res) => {
 });
 
 app.get(['/admin-login', '/admin-login.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'admin-login.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'admin-login.html'));
 });
 
 app.get(['/admin', '/Admin.html'], requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'Admin.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'Admin.html'));
 });
 
 app.get('/api/admin/session', (req, res) => {
@@ -1154,7 +1155,7 @@ app.post('/api/admin/logout', (req, res) => {
 
 app.get(/\.[a-z0-9]+$/i, (req, res) => {
   const assetPath = req.path.replace(/^\//, '');
-  const absolutePath = path.join(__dirname, assetPath);
+  const absolutePath = path.join(PUBLIC_DIR, assetPath);
 
   if (!fs.existsSync(absolutePath)) {
     return res.status(404).send('Asset not found');
@@ -1168,7 +1169,7 @@ app.get('*', (req, res) => {
   if (req.path === '/favicon.ico') {
     return res.status(204).end();
   }
-  res.sendFile(path.join(__dirname, 'invitacion.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'invitacion.html'));
 });
 
 if (!isVercelRuntime) {
