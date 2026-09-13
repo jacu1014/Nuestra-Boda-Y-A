@@ -119,42 +119,6 @@ body { margin: 0; min-width: 320px; min-height: 100vh; overflow: hidden; }
 .btn-invitation.show { opacity: 1; transform: translateY(0); visibility: visible; }
 .btn-invitation:hover, .btn-invitation:focus-visible { background: linear-gradient(135deg, #f3d477, #d4af37); box-shadow: 0 0 2.2rem rgba(212, 175, 55, 0.62); border-color: rgba(255, 244, 198, 0.96); color: #10261b; transform: translateY(-0.2rem); }
 .btn-invitation:focus-visible { outline: 2px solid #f2d982; outline-offset: 0.3rem; }
-.admin-access-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.6rem;
-  height: 2.6rem;
-  margin-top: 1rem;
-  border: 1px solid rgba(244, 220, 145, 0.72);
-  border-radius: 999px;
-  color: rgba(247, 236, 201, 0.94);
-  background: rgba(8, 21, 18, 0.28);
-  font-size: 0;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition: width 0.25s ease, transform 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-}
-.admin-access-link::before {
-  content: '⚙';
-  font-size: 1rem;
-  line-height: 1;
-}
-.admin-access-link:hover, .admin-access-link:focus-visible {
-  width: auto;
-  min-width: 9.5rem;
-  padding: 0 0.9rem;
-  background: rgba(212, 175, 55, 0.9);
-  border-color: rgba(255, 243, 193, 0.96);
-  color: #10261b;
-  font: 700 0.6rem "Trebuchet MS", sans-serif;
-  letter-spacing: 0.14em;
-  transform: translateY(-1px);
-}
-.admin-access-link:hover::before, .admin-access-link:focus-visible::before {
-  margin-right: 0.45rem;
-}
 .button-star { color: var(--gold); font-size: 1rem; transition: transform 0.3s ease; }
 .btn-invitation:hover .button-star { color: #10261b; transform: rotate(90deg) scale(1.2); }
 

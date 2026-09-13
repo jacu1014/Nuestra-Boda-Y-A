@@ -523,14 +523,48 @@ const upload = multer({
 
 function normalizeSettings(settings) {
   const payload = settings && typeof settings === 'object' ? settings : {};
-  const normalizedGallery = Array.isArray(payload.gallery) && payload.gallery.length
-    ? payload.gallery.map((item, index) => ({
+
+  const configuredGallery = Array.isArray(payload.gallery) ? payload.gallery : [];
+  const registeredGallerySet = new Set(
+    configuredGallery
+      .filter((item) => item && typeof item.src === 'string' && item.src.trim())
+      .map((item) => item.src.trim())
+  );
+
+  const filesystemGallery = (() => {
+    const galleryRoot = path.join(PUBLIC_DIR, 'Fotos');
+    if (!fs.existsSync(galleryRoot)) {
+      return [];
+    }
+
+    const imageExtensions = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg']);
+    const files = fs.readdirSync(galleryRoot, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name)
+      .filter((name) => imageExtensions.has(path.extname(name).toLowerCase()))
+      .sort((a, b) => a.localeCompare(b));
+
+    return files
+      .filter((fileName) => !registeredGallerySet.has(`Fotos/${fileName}`))
+      .map((fileName, index) => ({
+        id: `auto-gallery-${index + 1}-${fileName}`,
+        src: `Fotos/${fileName}`,
+        caption: '',
+        enabled: true
+      }));
+  })();
+
+  const normalizedGallery = [...
+    configuredGallery
+      .map((item, index) => ({
         id: String(item && item.id ? item.id : `gallery-${index + 1}`),
         src: String(item && item.src ? item.src : ''),
         caption: String(item && item.caption ? item.caption : ''),
         enabled: item && item.enabled !== undefined ? Boolean(item.enabled) : true
-      })).filter((item) => item.src)
-    : DEFAULT_SETTINGS.gallery;
+      }))
+      .filter((item) => item.src),
+    ...filesystemGallery
+  ];
 
   const themeSource = payload.theme && typeof payload.theme === 'object' ? payload.theme : {};
   const organizationSource = payload.organization && typeof payload.organization === 'object' ? payload.organization : {};
