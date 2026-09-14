@@ -106,8 +106,13 @@
       <section class="section gallery-section" id="momentos" aria-labelledby="gallery-title">
         <p id="gallery-eyebrow" class="eyebrow">Nuestros momentos</p>
         <h2 id="gallery-title">Un poco de nosotros</h2>
-        <div class="carousel" data-carousel>
-          <div class="carousel-track">
+        <div class="carousel-wrapper">
+          <div class="carousel" data-carousel>
+            <button class="carousel-btn carousel-prev" aria-label="Foto anterior">❮</button>
+            <div class="carousel-container">
+              <div class="carousel-track"></div>
+            </div>
+            <button class="carousel-btn carousel-next" aria-label="Foto siguiente">❯</button>
           </div>
           <div class="carousel-dots" aria-label="Seleccionar foto"></div>
         </div>

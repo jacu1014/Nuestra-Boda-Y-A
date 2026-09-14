@@ -506,30 +506,88 @@ function updateCountdown() {
 
 function setupCarousel() {
   document.querySelectorAll("[data-carousel]").forEach((carousel) => {
-    const track = carousel.querySelector(".carousel-track"); const dots = carousel.querySelector(".carousel-dots"); let current = 0; let timer;
-    const gallery = Array.isArray(activeSettings.gallery) && activeSettings.gallery.length ? activeSettings.gallery.filter((entry) => entry && entry.enabled !== false && entry.src) : [];
+    const track = carousel.querySelector(".carousel-track");
+    const dots = carousel.parentElement.querySelector(".carousel-dots");
+    const prevBtn = carousel.querySelector(".carousel-prev");
+    const nextBtn = carousel.querySelector(".carousel-next");
+    let current = 0;
+    let timer;
+
+    // Filtrar solo imágenes numeradas (1.png, 2.png, etc.)
+    let gallery = Array.isArray(activeSettings.gallery) && activeSettings.gallery.length
+      ? activeSettings.gallery.filter((entry) => {
+          if (!entry || entry.enabled === false || !entry.src) return false;
+          // Solo incluir si el nombre es numérico (1.png, 2.png, etc.)
+          const filename = entry.src.split('/').pop().toLowerCase();
+          return /^\d+\.(png|jpg|jpeg|gif|webp)$/i.test(filename);
+        })
+      : [];
 
     if (!gallery.length) {
-      track.innerHTML = '<p class="gallery-empty">Añade fotos numeradas dentro de la carpeta Fotos.</p>';
+      track.innerHTML = '<p class="gallery-empty">Añade fotos numeradas (1.png, 2.png, etc.) en la carpeta Fotos.</p>';
       return;
     }
 
     track.innerHTML = '';
     dots.innerHTML = '';
 
+    // Crear diapositivas
     gallery.forEach((photo, index) => {
-      const slide = document.createElement("figure"); slide.className = `photo-slide${index === 0 ? " is-active" : ""}`;
-      const image = document.createElement("img"); image.src = photo.src; image.alt = photo.caption || `Momento ${index + 1} de Y y A`;
-      const caption = document.createElement("figcaption"); caption.textContent = photo.caption || `Momento ${index + 1} de nuestra historia`;
-      slide.append(image, caption); track.appendChild(slide);
-      const dot = document.createElement("span"); dot.className = `carousel-dot${index === 0 ? " is-active" : ""}`; dot.setAttribute("aria-label", `Foto ${index + 1}`); dots.appendChild(dot);
+      const slide = document.createElement("figure");
+      slide.className = `photo-slide${index === 0 ? " is-active" : ""}`;
+      const image = document.createElement("img");
+      image.src = photo.src;
+      image.alt = photo.caption || `Momento ${index + 1} de Y y A`;
+      image.loading = "lazy";
+      const caption = document.createElement("figcaption");
+      caption.textContent = photo.caption || `Momento ${index + 1} de nuestra historia`;
+      slide.append(image, caption);
+      track.appendChild(slide);
+
+      // Crear puntos indicadores
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = `carousel-dot${index === 0 ? " is-active" : ""}`;
+      dot.setAttribute("aria-label", `Foto ${index + 1}`);
+      dot.addEventListener("click", () => show(index));
+      dots.appendChild(dot);
     });
 
-    const slides = [...track.querySelectorAll(".photo-slide")]; const indicators = [...dots.querySelectorAll(".carousel-dot")];
-    function show(index) { current = (index + slides.length) % slides.length; track.style.transform = `translateX(-${current * 100}%)`; slides.forEach((slide, slideIndex) => slide.classList.toggle("is-active", slideIndex === current)); indicators.forEach((dot, dotIndex) => dot.classList.toggle("is-active", dotIndex === current)); }
+    const slides = [...track.querySelectorAll(".photo-slide")];
+    const indicators = [...dots.querySelectorAll(".carousel-dot")];
+
+    function show(index) {
+      current = (index + slides.length) % slides.length;
+      track.style.transform = `translateX(-${current * 100}%)`;
+      slides.forEach((slide, slideIndex) => slide.classList.toggle("is-active", slideIndex === current));
+      indicators.forEach((dot, dotIndex) => dot.classList.toggle("is-active", dotIndex === current));
+    }
+
+    // Botones de navegación
+    if (prevBtn) {
+      prevBtn.addEventListener("click", () => {
+        window.clearInterval(timer);
+        show(current - 1);
+        if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        window.clearInterval(timer);
+        show(current + 1);
+        if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000);
+      });
+    }
+
+    // Autoavance
     if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000);
+
+    // Pausar en hover, reanudar al salir
     carousel.addEventListener("mouseenter", () => window.clearInterval(timer));
-    carousel.addEventListener("mouseleave", () => { if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000); });
+    carousel.addEventListener("mouseleave", () => {
+      if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000);
+    });
   });
 }
 
