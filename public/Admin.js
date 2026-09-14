@@ -858,18 +858,18 @@ async function loadGuestTable() {
       const partyValue = guest.De_parte || '';
       return `
         <tr>
-          <td>${guest.ID ?? '-'}</td>
-          <td>${fullName || 'Sin nombre'}</td>
-          <td><input class="guest-inline-input" data-type-id="${guest.ID}" value="${typeValue.replace(/"/g, '&quot;')}" aria-label="Tipo de invitación" /></td>
-          <td><input class="guest-inline-input" data-party-id="${guest.ID}" value="${partyValue.replace(/"/g, '&quot;')}" aria-label="De parte de" /></td>
-          <td>
+          <td data-label="ID">${guest.ID ?? '-'}</td>
+          <td data-label="Nombre">${fullName || 'Sin nombre'}</td>
+          <td data-label="Tipo"><input class="guest-inline-input" data-type-id="${guest.ID}" value="${typeValue.replace(/"/g, '&quot;')}" aria-label="Tipo de invitación" /></td>
+          <td data-label="De parte"><input class="guest-inline-input" data-party-id="${guest.ID}" value="${partyValue.replace(/"/g, '&quot;')}" aria-label="De parte de" /></td>
+          <td data-label="Estado">
             <select class="guest-status" data-status-id="${guest.ID}">
               <option value="Pendiente" ${statusValue === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
               <option value="Sí" ${statusValue === 'Sí' ? 'selected' : ''}>Sí</option>
               <option value="No" ${statusValue === 'No' ? 'selected' : ''}>No</option>
             </select>
           </td>
-          <td><button class="guest-save" type="button" data-save-id="${guest.ID}">Guardar</button></td>
+          <td data-label="Acción"><button class="guest-save" type="button" data-save-id="${guest.ID}">Guardar</button></td>
         </tr>
       `;
     }).join('');

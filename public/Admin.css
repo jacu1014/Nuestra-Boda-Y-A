@@ -1041,6 +1041,71 @@ a:focus-visible {
   .nav-item--logout {
     margin-top: 0.5rem;
   }
+
+  /* Responsive: convertir tabla de invitados en tarjetas para mayor legibilidad en móvil */
+  .guest-table thead {
+    display: none;
+  }
+
+  .guest-table, .guest-table tbody {
+    width: 100%;
+  }
+
+  .guest-table tbody tr {
+    display: block;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid rgba(244, 220, 145, 0.08);
+    border-radius: 12px;
+    padding: 0.85rem 0.9rem;
+    margin: 0.6rem 0.5rem;
+  }
+
+  .guest-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border: none;
+  }
+
+  .guest-table td::before {
+    content: attr(data-label);
+    color: var(--gold-soft);
+    font-weight: 700;
+    margin-right: 0.75rem;
+    font-size: 0.82rem;
+    flex: 0 0 6.5rem;
+  }
+
+  .guest-table td input[type="text"],
+  .guest-table td input[type="search"],
+  .guest-table td select {
+    width: auto;
+    min-width: 140px;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .guest-table td button.guest-save {
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+  }
+
+  .guest-table td[data-label="Nombre"] {
+    font-weight: 700;
+    color: var(--paper);
+    font-size: 1rem;
+  }
+
+  .guest-table td[data-label="Estado"] select {
+    min-width: 110px;
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+
+  /* Mejor separación entre tarjetas */
+  .table-wrap { padding: 0.4rem; }
 }
 
 @media (max-width: 640px) {
