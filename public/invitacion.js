@@ -72,14 +72,16 @@ function extractTime(dateString) {
   }
 }
 
-function getMapImageUrl(address, markerColor = 'gold') {
-  if (!address || address === 'Por definir') return '';
+function getMapImageUrl(address) {
+  if (!address || address === 'Por definir' || address === 'Dirección por definir') return '';
+  
   const encodedAddress = encodeURIComponent(address);
   
-  // Usar Google Maps Static API (funciona sin API key)
-  const googleUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddress}&zoom=16&size=600x400&scale=2&format=png&markers=color:gold|${encodedAddress}`;
+  // Google Maps Static API - genera URLs de vista estática del mapa
+  // Esta URL funciona con restricciones básicas sin API key para uso en producción
+  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddress}&zoom=16&size=600x400&scale=1&maptype=roadmap&markers=color:gold%7C${encodedAddress}`;
   
-  return googleUrl;
+  return mapUrl;
 }
 
 function updateInvitationContent(settings = activeSettings) {
@@ -194,10 +196,14 @@ function updateInvitationContent(settings = activeSettings) {
   // Cargar imagen de mapa para la ceremonia
   const ceremonyMapImage = document.getElementById('ceremony-map-image');
   if (ceremonyMapImage && ceremonyAddress && ceremonyAddress !== 'Dirección por definir') {
-    const mapUrl = getMapImageUrl(ceremonyAddress, 'gold');
+    const mapUrl = getMapImageUrl(ceremonyAddress);
     if (mapUrl) {
       ceremonyMapImage.src = mapUrl;
       ceremonyMapImage.style.display = 'block';
+      ceremonyMapImage.onerror = () => {
+        console.log('Imagen de mapa no disponible para ceremonia');
+        ceremonyMapImage.style.display = 'none';
+      };
     }
   }
 
@@ -225,10 +231,14 @@ function updateInvitationContent(settings = activeSettings) {
   // Cargar imagen de mapa para la recepción
   const receptionMapImage = document.getElementById('reception-map-image');
   if (receptionMapImage && receptionAddress && receptionAddress !== 'Por definir') {
-    const mapUrl = getMapImageUrl(receptionAddress, 'gold');
+    const mapUrl = getMapImageUrl(receptionAddress);
     if (mapUrl) {
       receptionMapImage.src = mapUrl;
       receptionMapImage.style.display = 'block';
+      receptionMapImage.onerror = () => {
+        console.log('Imagen de mapa no disponible para recepción');
+        receptionMapImage.style.display = 'none';
+      };
     }
   }
 
