@@ -72,16 +72,134 @@ function extractTime(dateString) {
   }
 }
 
-function getMapImageUrl(address) {
+async function getMapImageUrl(address) {
   if (!address || address === 'Por definir' || address === 'Dirección por definir') return '';
   
-  const encodedAddress = encodeURIComponent(address);
+  try {
+    const encodedAddress = encodeURIComponent(address);
+    
+    // Usar Nominatim (OpenStreetMap) para obtener coordenadas de la dirección
+    // Este servicio es gratuito y no requiere API key
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&timeout=10`;
+    
+    const response = await fetch(nominatimUrl);
+    const data = await response.json();
+    
+    if (data && data.length > 0) {
+      const { lon, lat, display_name } = data[0];
+      
+      // Generar URL embebida de OpenStreetMap que funciona sin API key
+      // Usando OpenStreetMap's Leaflet embeddings
+      const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01},${lat-0.01},${lon+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lon}`;
+      
+      return mapUrl;
+    }
+    
+    return '';
+  } catch (e) {
+    console.log('Error al obtener coordenadas del mapa:', e);
+    return '';
+  }
+}
+
+// Función para cargar mapas interactivos usando Leaflet.js
+async function loadMapImages(ceremonyAddress, receptionAddress) {
+  // Esperar a que Leaflet esté disponible
+  if (typeof L === 'undefined') {
+    console.warn('Leaflet.js no está disponible');
+    return;
+  }
   
-  // Google Maps Static API - genera URLs de vista estática del mapa
-  // Esta URL funciona con restricciones básicas sin API key para uso en producción
-  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddress}&zoom=16&size=600x400&scale=1&maptype=roadmap&markers=color:gold%7C${encodedAddress}`;
+  // Cargar mapa de ceremonia
+  if (ceremonyAddress && ceremonyAddress !== 'Dirección por definir') {
+    const ceremonyMapContainer = document.getElementById('ceremony-map');
+    if (ceremonyMapContainer && !ceremonyMapContainer._leaflet_id) {
+      try {
+        const coords = await geocodeAddress(ceremonyAddress);
+        if (coords) {
+          const ceremonyMap = L.map('ceremony-map', {
+            zoom: 15,
+            center: [coords.lat, coords.lon],
+            scrollWheelZoom: false,
+            touchZoom: false,
+            dragging: false
+          });
+          
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '',
+            maxZoom: 19
+          }).addTo(ceremonyMap);
+          
+          L.marker([coords.lat, coords.lon], {
+            icon: L.icon({
+              iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d4af37" width="32" height="32"><path d="M12 0C7.03 0 3 4.03 3 9c0 5.25 9 15 9 15s9-9.75 9-15c0-4.97-4.03-9-9-9zm0 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>',
+              iconSize: [32, 32],
+              iconAnchor: [16, 32]
+            })
+          }).addTo(ceremonyMap);
+        }
+      } catch (e) {
+        console.log('Error al cargar mapa de ceremonia:', e);
+      }
+    }
+  }
   
-  return mapUrl;
+  // Cargar mapa de recepción
+  if (receptionAddress && receptionAddress !== 'Por definir') {
+    const receptionMapContainer = document.getElementById('reception-map');
+    if (receptionMapContainer && !receptionMapContainer._leaflet_id) {
+      try {
+        const coords = await geocodeAddress(receptionAddress);
+        if (coords) {
+          const receptionMap = L.map('reception-map', {
+            zoom: 15,
+            center: [coords.lat, coords.lon],
+            scrollWheelZoom: false,
+            touchZoom: false,
+            dragging: false
+          });
+          
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '',
+            maxZoom: 19
+          }).addTo(receptionMap);
+          
+          L.marker([coords.lat, coords.lon], {
+            icon: L.icon({
+              iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d4af37" width="32" height="32"><path d="M12 0C7.03 0 3 4.03 3 9c0 5.25 9 15 9 15s9-9.75 9-15c0-4.97-4.03-9-9-9zm0 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>',
+              iconSize: [32, 32],
+              iconAnchor: [16, 32]
+            })
+          }).addTo(receptionMap);
+        }
+      } catch (e) {
+        console.log('Error al cargar mapa de recepción:', e);
+      }
+    }
+  }
+}
+
+// Función auxiliar para geocodificar direcciones
+async function geocodeAddress(address) {
+  try {
+    const encodedAddress = encodeURIComponent(address);
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&timeout=10`;
+    
+    const response = await fetch(nominatimUrl);
+    const data = await response.json();
+    
+    if (data && data.length > 0) {
+      return {
+        lat: parseFloat(data[0].lat),
+        lon: parseFloat(data[0].lon)
+      };
+    }
+    
+    return null;
+  } catch (e) {
+    console.log('Error al geocodificar dirección:', e);
+    return null;
+  }
 }
 
 function updateInvitationContent(settings = activeSettings) {
@@ -193,20 +311,6 @@ function updateInvitationContent(settings = activeSettings) {
     ceremonyLocationEl.innerHTML = `${ceremonyVenue}<br />${ceremonyAddress}`;
   }
 
-  // Cargar imagen de mapa para la ceremonia
-  const ceremonyMapImage = document.getElementById('ceremony-map-image');
-  if (ceremonyMapImage && ceremonyAddress && ceremonyAddress !== 'Dirección por definir') {
-    const mapUrl = getMapImageUrl(ceremonyAddress);
-    if (mapUrl) {
-      ceremonyMapImage.src = mapUrl;
-      ceremonyMapImage.style.display = 'block';
-      ceremonyMapImage.onerror = () => {
-        console.log('Imagen de mapa no disponible para ceremonia');
-        ceremonyMapImage.style.display = 'none';
-      };
-    }
-  }
-
   const ceremonyMapLink = document.getElementById('ceremony-map-link');
   if (ceremonyMapLink) ceremonyMapLink.href = ceremonyMap || 'https://www.google.com/maps';
 
@@ -228,22 +332,11 @@ function updateInvitationContent(settings = activeSettings) {
     receptionLocationEl.innerHTML = `${receptionVenue}<br />${receptionAddress}`;
   }
 
-  // Cargar imagen de mapa para la recepción
-  const receptionMapImage = document.getElementById('reception-map-image');
-  if (receptionMapImage && receptionAddress && receptionAddress !== 'Por definir') {
-    const mapUrl = getMapImageUrl(receptionAddress);
-    if (mapUrl) {
-      receptionMapImage.src = mapUrl;
-      receptionMapImage.style.display = 'block';
-      receptionMapImage.onerror = () => {
-        console.log('Imagen de mapa no disponible para recepción');
-        receptionMapImage.style.display = 'none';
-      };
-    }
-  }
-
   const receptionMapLink = document.getElementById('reception-map-link');
   if (receptionMapLink) receptionMapLink.href = receptionMap || 'https://www.google.com/maps';
+  
+  // Cargar mapas de forma asincrónica después de actualizar el contenido
+  loadMapImages(ceremonyAddress, receptionAddress);
 
   const galleryEyebrow = document.getElementById('gallery-eyebrow');
   if (galleryEyebrow) galleryEyebrow.textContent = copy.galleryEyebrow || defaults.galleryEyebrow;

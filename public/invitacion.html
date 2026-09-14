@@ -12,6 +12,9 @@
     <meta property="og:image:alt" content="Invitación de boda Y & A" />
     <title>Y &amp; A | Nuestra invitación</title>
     <link rel="stylesheet" href="invitacion.css" />
+    <!-- Leaflet.js para mapas interactivos sin API keys -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   </head>
   <body>
     <main class="invitation-page">
@@ -66,10 +69,7 @@
         <h2 id="events-title">Los detalles del día</h2>
         <div class="event-grid">
           <article class="event-card">
-            <div class="venue-thumbnail church-thumbnail" role="img" aria-label="Mapa de ubicación de la ceremonia">
-              <img id="ceremony-map-image" class="map-image" src="" alt="Mapa de la ceremonia" loading="lazy" />
-              <div class="map-overlay"></div>
-            </div>
+            <div id="ceremony-map" class="venue-thumbnail church-thumbnail" role="region" aria-label="Mapa de ubicación de la ceremonia"></div>
             <div class="event-content">
               <span class="event-icon" aria-hidden="true">✦</span>
             <p id="ceremony-label" class="card-label">Ceremonia</p>
@@ -80,10 +80,7 @@
             </div>
           </article>
           <article class="event-card">
-            <div class="venue-thumbnail reception-thumbnail" role="img" aria-label="Mapa de ubicación de la recepción">
-              <img id="reception-map-image" class="map-image" src="" alt="Mapa de la recepción" loading="lazy" />
-              <div class="map-overlay"></div>
-            </div>
+            <div id="reception-map" class="venue-thumbnail reception-thumbnail" role="region" aria-label="Mapa de ubicación de la recepción"></div>
             <div class="event-content">
               <span class="event-icon" aria-hidden="true">✦</span>
               <p id="reception-label" class="card-label">Recepción</p>
