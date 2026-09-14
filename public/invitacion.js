@@ -289,9 +289,9 @@ function updateInvitationContent(settings = activeSettings) {
     rsvpTitle: 'Confirma tu asistencia',
     rsvpDescription: 'Ayúdanos a preparar todo con cariño confirmando antes del día del evento.',
     rsvpButton: 'Confirmar asistencia',
-    giftsEyebrow: 'Si deseas tener un detalle con nosotros',
-    giftsTitle: 'Mesa de regalos',
-    giftsDescription: 'Tu presencia es el regalo más importante. Si deseas obsequiarnos algo, puedes hacerlo aquí:'
+    giftsEyebrow: 'Tu presencia es el mejor regalo',
+    giftsTitle: 'Lluvia de sobres',
+    giftsDescription: 'Con tu presencia ya nos haces muy felices. Si deseas acompañarnos con un detalle, lo haremos en una lluvia de sobres.'
   };
 
   const copy = { ...defaults, ...publicContent };
@@ -699,17 +699,32 @@ function setupPublicForms() {
   }
 }
 
+function resolveAlbumQrSource(settings = activeSettings) {
+  const gallery = Array.isArray(settings.gallery) ? settings.gallery : [];
+  const preferredSources = [
+    settings.qrAlbumImage,
+    settings.qrAlbum,
+    gallery.find((item) => /QR_Album/i.test(item.src || ''))?.src,
+    gallery.find((item) => /qr/i.test(item.src || '') && /album/i.test(item.src || ''))?.src,
+    'Fotos/QR_Album.jpeg',
+    'Fotos/QR_Album.jpg'
+  ];
+
+  return preferredSources.find((source) => typeof source === 'string' && source.trim().length > 0)?.trim() || '';
+}
+
 function updateQrFrames(settings = activeSettings) {
-  const qrAlbum = settings.qrAlbumImage || '';
-  const qrGifts = settings.qrGiftsImage || '';
+  const qrAlbum = resolveAlbumQrSource(settings);
 
   if (qrAlbum) {
     applyQrImage('#album-qr-frame', qrAlbum, 'QR');
+  } else {
+    applyQrImage('#album-qr-frame', '', 'QR');
   }
 
   const giftsFrame = document.getElementById('gift-qr-frame');
-  if (giftsFrame && qrGifts) {
-    giftsFrame.innerHTML = `<img src="${qrGifts}" alt="Código QR de la mesa de regalos" style="width:100%; height:100%; object-fit:cover; border-radius: 20px;" />`;
+  if (giftsFrame) {
+    giftsFrame.innerHTML = '<span aria-hidden="true">✦</span><small>Lluvia de sobres</small>';
   }
 }
 

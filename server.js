@@ -75,10 +75,10 @@ const DEFAULT_PUBLIC_COPY = {
   rsvpTitle: 'Confirma tu asistencia',
   rsvpDescription: 'Ayúdanos a preparar todo con cariño confirmando antes del día del evento.',
   rsvpButton: 'Confirmar asistencia',
-  giftsEyebrow: 'Si deseas tener un detalle con nosotros',
-  giftsTitle: 'Mesa de regalos',
-  giftsDescription: 'Tu presencia es el regalo más importante. Si deseas obsequiarnos algo, puedes hacerlo aquí:',
-  giftsButton: 'Ver regalo',
+  giftsEyebrow: 'Tu presencia es el mejor regalo',
+  giftsTitle: 'Lluvia de sobres',
+  giftsDescription: 'Con tu presencia ya nos haces muy felices. Si deseas acompañarnos con un detalle, lo haremos en una lluvia de sobres.',
+  giftsButton: 'Ver detalle',
   musicLabel: 'Música',
   mapLabel: 'Maps',
   wazeLabel: 'Waze',
@@ -578,6 +578,8 @@ function normalizeSettings(settings) {
     ...filesystemGallery
   ];
 
+  const qrAlbumFallback = normalizedGallery.find((item) => /QR_Album/i.test(item.src)) || null;
+
   const themeSource = payload.theme && typeof payload.theme === 'object' ? payload.theme : {};
   const organizationSource = payload.organization && typeof payload.organization === 'object' ? payload.organization : {};
   const normalizedChecklist = Array.isArray(organizationSource.checklist) && organizationSource.checklist.length
@@ -648,7 +650,7 @@ function normalizeSettings(settings) {
     },
     qrAlbum: String(merged.qrAlbum || '').trim(),
     qrGifts: String(merged.qrGifts || '').trim(),
-    qrAlbumImage: String(merged.qrAlbumImage || '').trim(),
+    qrAlbumImage: String(merged.qrAlbumImage || (qrAlbumFallback ? qrAlbumFallback.src : '')).trim(),
     qrGiftsImage: String(merged.qrGiftsImage || '').trim(),
     publicContent: {
       ...DEFAULT_SETTINGS.publicContent,
