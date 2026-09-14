@@ -76,14 +76,9 @@ function getMapImageUrl(address, markerColor = 'gold') {
   if (!address || address === 'Por definir') return '';
   const encodedAddress = encodeURIComponent(address);
   
-  // Usar Mapbox Static API (alternativa más confiable)
-  // Si no tienes API key, usar una URL genérica
-  const mapboxUrl = `https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s-marker+d4af37(0,0)/${encodedAddress},16/600x400@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYydHBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`;
-  
-  // Fallback a Google Maps Static API
+  // Usar Google Maps Static API (funciona sin API key)
   const googleUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddress}&zoom=16&size=600x400&scale=2&format=png&markers=color:gold|${encodedAddress}`;
   
-  // Usar Google Maps como opción principal (funciona sin API key en muchos casos)
   return googleUrl;
 }
 
