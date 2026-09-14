@@ -43,6 +43,50 @@ async function refreshPublicSettings() {
   }
 }
 
+function formatDate(dateString) {
+  if (!dateString) return 'Fecha por definir';
+  try {
+    const date = new Date(dateString);
+    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+                   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} de ${month} de ${year}`;
+  } catch (e) {
+    return dateString;
+  }
+}
+
+function extractTime(dateString) {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const period = date.getHours() >= 12 ? 'p.m.' : 'a.m.';
+    const displayHours = date.getHours() % 12 || 12;
+    return `${displayHours}:${minutes} ${period}`;
+  } catch (e) {
+    return '';
+  }
+}
+
+function getMapImageUrl(address, markerColor = 'gold') {
+  if (!address || address === 'Por definir') return '';
+  const encodedAddress = encodeURIComponent(address);
+  
+  // Usar Mapbox Static API (alternativa más confiable)
+  // Si no tienes API key, usar una URL genérica
+  const mapboxUrl = `https://api.mapbox.com/styles/v1/mapbox/light-v11/static/pin-s-marker+d4af37(0,0)/${encodedAddress},16/600x400@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYydHBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`;
+  
+  // Fallback a Google Maps Static API
+  const googleUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddress}&zoom=16&size=600x400&scale=2&format=png&markers=color:gold|${encodedAddress}`;
+  
+  // Usar Google Maps como opción principal (funciona sin API key en muchos casos)
+  return googleUrl;
+}
+
 function updateInvitationContent(settings = activeSettings) {
   const publicContent = settings.publicContent && typeof settings.publicContent === 'object' ? settings.publicContent : {};
   const brideName = (settings.brideName || '').trim();
@@ -142,7 +186,9 @@ function updateInvitationContent(settings = activeSettings) {
 
   const ceremonyDateEl = document.getElementById('ceremony-date');
   if (ceremonyDateEl) {
-    ceremonyDateEl.innerHTML = `${ceremonyDate}<br />${copy.ceremonyTime || '4:00 p. m.'}`;
+    const formattedDate = formatDate(ceremonyDate);
+    const time = extractTime(ceremonyDate);
+    ceremonyDateEl.innerHTML = time ? `${formattedDate}<br /><strong>${time}</strong>` : formattedDate;
   }
 
   const ceremonyLocationEl = document.getElementById('ceremony-location');
@@ -152,11 +198,12 @@ function updateInvitationContent(settings = activeSettings) {
 
   // Cargar imagen de mapa para la ceremonia
   const ceremonyMapImage = document.getElementById('ceremony-map-image');
-  if (ceremonyMapImage && ceremonyAddress) {
-    ceremonyMapImage.src = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(ceremonyAddress)}&zoom=17&size=600x400&scale=2&format=png&markers=color:gold|${encodeURIComponent(ceremonyAddress)}&style=feature:all|color:0x1a3a2a&style=feature:water|color:0x0f2a20&style=feature:road|visibility:off&style=feature:administrative|element:labels|visibility:off`;
-    ceremonyMapImage.onerror = () => {
-      ceremonyMapImage.style.display = 'none';
-    };
+  if (ceremonyMapImage && ceremonyAddress && ceremonyAddress !== 'Dirección por definir') {
+    const mapUrl = getMapImageUrl(ceremonyAddress, 'gold');
+    if (mapUrl) {
+      ceremonyMapImage.src = mapUrl;
+      ceremonyMapImage.style.display = 'block';
+    }
   }
 
   const ceremonyMapLink = document.getElementById('ceremony-map-link');
@@ -170,7 +217,9 @@ function updateInvitationContent(settings = activeSettings) {
 
   const receptionDateEl = document.getElementById('reception-date');
   if (receptionDateEl) {
-    receptionDateEl.innerHTML = `${receptionDate}<br />${copy.receptionTime || '6:30 p. m.'}`;
+    const formattedDate = formatDate(receptionDate);
+    const time = extractTime(receptionDate);
+    receptionDateEl.innerHTML = time ? `${formattedDate}<br /><strong>${time}</strong>` : formattedDate;
   }
 
   const receptionLocationEl = document.getElementById('reception-location');
@@ -181,10 +230,11 @@ function updateInvitationContent(settings = activeSettings) {
   // Cargar imagen de mapa para la recepción
   const receptionMapImage = document.getElementById('reception-map-image');
   if (receptionMapImage && receptionAddress && receptionAddress !== 'Por definir') {
-    receptionMapImage.src = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(receptionAddress)}&zoom=17&size=600x400&scale=2&format=png&markers=color:gold|${encodeURIComponent(receptionAddress)}&style=feature:all|color:0x1a3a2a&style=feature:water|color:0x0f2a20&style=feature:road|visibility:off&style=feature:administrative|element:labels|visibility:off`;
-    receptionMapImage.onerror = () => {
-      receptionMapImage.style.display = 'none';
-    };
+    const mapUrl = getMapImageUrl(receptionAddress, 'gold');
+    if (mapUrl) {
+      receptionMapImage.src = mapUrl;
+      receptionMapImage.style.display = 'block';
+    }
   }
 
   const receptionMapLink = document.getElementById('reception-map-link');
