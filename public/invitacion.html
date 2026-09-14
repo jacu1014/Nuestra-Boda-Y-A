@@ -66,22 +66,32 @@
         <h2 id="events-title">Los detalles del día</h2>
         <div class="event-grid">
           <article class="event-card">
-            <div class="venue-thumbnail church-thumbnail" role="img" aria-label="Imagen de la iglesia y miniatura de ubicación de la ceremonia"><div class="venue-art"><span>✦</span><small>Evento</small></div><div class="map-preview"><i></i><b>⌖</b><small>Ver ubicación</small></div></div>
-            <span class="event-icon" aria-hidden="true">✦</span>
+            <div class="venue-thumbnail church-thumbnail" role="img" aria-label="Mapa de ubicación de la ceremonia">
+              <img id="ceremony-map-image" class="map-image" src="" alt="Mapa de la ceremonia" loading="lazy" />
+              <div class="map-overlay"></div>
+            </div>
+            <div class="event-content">
+              <span class="event-icon" aria-hidden="true">✦</span>
             <p id="ceremony-label" class="card-label">Ceremonia</p>
             <h3 id="ceremony-title">Donde diremos “sí”</h3>
-            <p id="ceremony-date"></p>
-            <p id="ceremony-location" class="location"></p>
-            <div class="map-links"><a id="ceremony-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener" aria-label="Abrir ubicación de la ceremonia en Google Maps"><span aria-hidden="true">⌖</span> Maps</a><a id="ceremony-waze-link" href="https://www.waze.com" target="_blank" rel="noopener" aria-label="Abrir ubicación de la ceremonia en Waze"><span aria-hidden="true">↗</span> Waze</a></div>
+            <p id="ceremony-date" class="event-date"></p>
+            <p id="ceremony-location" class="location-text"></p>
+              <div class="map-links"><a id="ceremony-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener" class="btn-map" aria-label="Abrir ubicación de la ceremonia en Google Maps"><span aria-hidden="true">📍</span> Ver en Maps</a></div>
+            </div>
           </article>
           <article class="event-card">
-            <div class="venue-thumbnail reception-thumbnail" role="img" aria-label="Imagen del salón y miniatura de ubicación de la recepción"><div class="venue-art"><span>✦</span><small>Evento</small></div><div class="map-preview"><i></i><b>⌖</b><small>Ver ubicación</small></div></div>
-            <span class="event-icon" aria-hidden="true">✦</span>
-            <p id="reception-label" class="card-label">Recepción</p>
-            <h3 id="reception-title">Donde celebraremos</h3>
-            <p id="reception-date"></p>
-            <p id="reception-location" class="location"></p>
-            <div class="map-links"><a id="reception-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener" aria-label="Abrir ubicación de la recepción en Google Maps"><span aria-hidden="true">⌖</span> Maps</a><a id="reception-waze-link" href="https://www.waze.com" target="_blank" rel="noopener" aria-label="Abrir ubicación de la recepción en Waze"><span aria-hidden="true">↗</span> Waze</a></div>
+            <div class="venue-thumbnail reception-thumbnail" role="img" aria-label="Mapa de ubicación de la recepción">
+              <img id="reception-map-image" class="map-image" src="" alt="Mapa de la recepción" loading="lazy" />
+              <div class="map-overlay"></div>
+            </div>
+            <div class="event-content">
+              <span class="event-icon" aria-hidden="true">✦</span>
+              <p id="reception-label" class="card-label">Recepción</p>
+              <h3 id="reception-title">Donde celebraremos</h3>
+              <p id="reception-date" class="event-date"></p>
+              <p id="reception-location" class="location-text"></p>
+              <div class="map-links"><a id="reception-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener" class="btn-map" aria-label="Abrir ubicación de la recepción en Google Maps"><span aria-hidden="true">📍</span> Ver en Maps</a></div>
+            </div>
           </article>
         </div>
       </section>

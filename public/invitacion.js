@@ -150,6 +150,15 @@ function updateInvitationContent(settings = activeSettings) {
     ceremonyLocationEl.innerHTML = `${ceremonyVenue}<br />${ceremonyAddress}`;
   }
 
+  // Cargar imagen de mapa para la ceremonia
+  const ceremonyMapImage = document.getElementById('ceremony-map-image');
+  if (ceremonyMapImage && ceremonyAddress) {
+    ceremonyMapImage.src = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(ceremonyAddress)}&zoom=17&size=600x400&scale=2&format=png&markers=color:gold|${encodeURIComponent(ceremonyAddress)}&style=feature:all|color:0x1a3a2a&style=feature:water|color:0x0f2a20&style=feature:road|visibility:off&style=feature:administrative|element:labels|visibility:off`;
+    ceremonyMapImage.onerror = () => {
+      ceremonyMapImage.style.display = 'none';
+    };
+  }
+
   const ceremonyMapLink = document.getElementById('ceremony-map-link');
   if (ceremonyMapLink) ceremonyMapLink.href = ceremonyMap || 'https://www.google.com/maps';
 
@@ -167,6 +176,15 @@ function updateInvitationContent(settings = activeSettings) {
   const receptionLocationEl = document.getElementById('reception-location');
   if (receptionLocationEl) {
     receptionLocationEl.innerHTML = `${receptionVenue}<br />${receptionAddress}`;
+  }
+
+  // Cargar imagen de mapa para la recepción
+  const receptionMapImage = document.getElementById('reception-map-image');
+  if (receptionMapImage && receptionAddress && receptionAddress !== 'Por definir') {
+    receptionMapImage.src = `https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(receptionAddress)}&zoom=17&size=600x400&scale=2&format=png&markers=color:gold|${encodeURIComponent(receptionAddress)}&style=feature:all|color:0x1a3a2a&style=feature:water|color:0x0f2a20&style=feature:road|visibility:off&style=feature:administrative|element:labels|visibility:off`;
+    receptionMapImage.onerror = () => {
+      receptionMapImage.style.display = 'none';
+    };
   }
 
   const receptionMapLink = document.getElementById('reception-map-link');
