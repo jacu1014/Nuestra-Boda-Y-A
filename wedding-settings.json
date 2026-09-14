@@ -6,10 +6,10 @@
   "ceremonyAddress": "Cra. 90 #146c-40, Suba, Bogotá, Cundinamarca",
   "ceremonyMap": "https://maps.app.goo.gl/N4cSWYvJvAAuQoBj7",
   "ceremonyImage": "",
-  "receptionDate": "2026-11-22T13:00",
-  "receptionVenue": "Por definir",
-  "receptionAddress": "Por definir",
-  "receptionMap": "",
+  "receptionDate": "2026-11-21T13:00",
+  "receptionVenue": "Salon Comunal Plazuelas del Virrey",
+  "receptionAddress": "Carrera 105h #70-2",
+  "receptionMap": "https://maps.app.goo.gl/4FYDHu9ZKr4eg5Ct6",
   "receptionImage": "",
   "welcomeMessage": "Por tanto, lo que Dios ha unido, que no lo separe nadie.",
   "welcomeReference": "Marcos 10:9",
@@ -51,6 +51,132 @@
     {
       "id": "gallery-1788926164184",
       "src": "Fotos/10.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-1-11.png",
+      "src": "Fotos/11.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-2-12.png",
+      "src": "Fotos/12.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-3-13.png",
+      "src": "Fotos/13.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-4-14.png",
+      "src": "Fotos/14.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-5-15.png",
+      "src": "Fotos/15.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-6-16.png",
+      "src": "Fotos/16.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-7-17.png",
+      "src": "Fotos/17.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-8-18.png",
+      "src": "Fotos/18.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-9-19.png",
+      "src": "Fotos/19.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-10-20.png",
+      "src": "Fotos/20.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-11-3.png",
+      "src": "Fotos/3.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-12-4.png",
+      "src": "Fotos/4.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-13-5.png",
+      "src": "Fotos/5.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-14-6.png",
+      "src": "Fotos/6.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-15-7.png",
+      "src": "Fotos/7.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-16-8.png",
+      "src": "Fotos/8.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-17-9.png",
+      "src": "Fotos/9.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-18-bienvenida.png",
+      "src": "Fotos/bienvenida.png",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-19-Dresscode.jpg",
+      "src": "Fotos/Dresscode.jpg",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-20-QR_Album.jpeg",
+      "src": "Fotos/QR_Album.jpeg",
+      "caption": "",
+      "enabled": true
+    },
+    {
+      "id": "auto-gallery-21-reserva.jpg",
+      "src": "Fotos/reserva.jpg",
       "caption": "",
       "enabled": true
     }
@@ -115,19 +241,19 @@
     "notes": "Recordatorio para coordinación del evento",
     "checklist": [
       {
-        "id": "org-1788998696711-7269da",
+        "id": "org-1789362232785-adcbc4",
         "title": "Confirmación de asistencia",
         "owner": "",
         "done": false
       },
       {
-        "id": "org-1788998696711-4150ea",
+        "id": "org-1789362232785-91636d",
         "title": "Confirmar estrategia musical",
         "owner": "Pareja",
         "done": false
       },
       {
-        "id": "org-1788998696711-7acd45",
+        "id": "org-1789362232785-5835e7",
         "title": "Revisión final de la decoración",
         "owner": "",
         "done": false

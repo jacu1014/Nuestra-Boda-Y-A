@@ -116,9 +116,9 @@ const DEFAULT_SETTINGS = {
   ceremonyMap: 'https://maps.app.goo.gl/N4cSWYvJvAAuQoBj7',
   ceremonyImage: '',
   receptionDate: '2026-11-22T13:00',
-  receptionVenue: 'Por definir',
-  receptionAddress: 'Por definir',
-  receptionMap: '',
+  receptionVenue: 'Centro Comercial Flesta Sube',
+  receptionAddress: 'Cra. 90 #146c-40, Suba, Bogotá, Cundinamarca',
+  receptionMap: 'https://www.google.com/maps/search/?api=1&query=Centro+Comercial+Flesta+Suba',
   receptionImage: '',
   welcomeMessage: '“Por tanto, lo que Dios ha unido, que no lo separe nadie.”',
   welcomeReference: 'Marcos 10:9',
@@ -179,6 +179,18 @@ app.use(session({
   }
 }));
 app.use(express.static(PUBLIC_DIR));
+
+app.get(['/admin', '/admin.html', '/Admin.html'], (req, res) => {
+  if (!req.session || !req.session.isAdminAuthenticated) {
+    const nextPage = encodeURIComponent('/admin.html');
+    return res.redirect(`/admin-login?next=${nextPage}`);
+  }
+
+  const adminCandidate = fs.existsSync(path.join(PUBLIC_DIR, 'admin.html'))
+    ? path.join(PUBLIC_DIR, 'admin.html')
+    : path.join(PUBLIC_DIR, 'Admin.html');
+  return res.sendFile(adminCandidate);
+});
 
 function hasSupabase() {
   return Boolean(SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY) && supabase);
@@ -667,6 +679,17 @@ function normalizeSettings(settings) {
 }
 
 async function readWeddingSettings() {
+  try {
+    if (fs.existsSync(SETTINGS_PATH)) {
+      const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
+      if (raw.trim()) {
+        return normalizeSettings(JSON.parse(raw));
+      }
+    }
+  } catch (error) {
+    console.error('No se pudieron leer los ajustes locales de la boda:', error);
+  }
+
   if (hasSupabase()) {
     try {
       const { data, error } = await supabase.from('settings').select('*').eq('key', 'wedding-config').maybeSingle();
@@ -680,39 +703,29 @@ async function readWeddingSettings() {
     }
   }
 
-  try {
-    if (!fs.existsSync(SETTINGS_PATH)) {
-      return { ...DEFAULT_SETTINGS };
-    }
-    const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
-    if (!raw.trim()) {
-      return { ...DEFAULT_SETTINGS };
-    }
-    return normalizeSettings(JSON.parse(raw));
-  } catch (error) {
-    console.error('No se pudieron leer los ajustes de la boda:', error);
-    return { ...DEFAULT_SETTINGS };
-  }
+  return { ...DEFAULT_SETTINGS };
 }
 
 async function writeWeddingSettings(settings) {
   const normalized = normalizeSettings(settings);
+  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(normalized, null, 2), 'utf8');
 
   if (hasSupabase()) {
-    const { error } = await supabase.from('settings').upsert({
-      key: 'wedding-config',
-      value: normalized,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'key' });
+    try {
+      const { error } = await supabase.from('settings').upsert({
+        key: 'wedding-config',
+        value: normalized,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'key' });
 
-    if (error) {
-      throw new Error(error.message || 'No se pudieron guardar los ajustes en Supabase.');
+      if (error) {
+        throw new Error(error.message || 'No se pudieron guardar los ajustes en Supabase.');
+      }
+    } catch (error) {
+      console.warn('Se guardaron los cambios locales, pero hubo un error al sincronizar con Supabase:', error.message || error);
     }
-
-    return normalized;
   }
 
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(normalized, null, 2), 'utf8');
   return normalized;
 }
 

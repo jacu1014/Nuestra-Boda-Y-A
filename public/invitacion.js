@@ -102,34 +102,69 @@ async function getMapImageUrl(address) {
   }
 }
 
-// Función para cargar mapas interactivos usando Leaflet.js
-async function loadMapImages(ceremonyAddress, receptionAddress) {
-  // Esperar a que Leaflet esté disponible
-  if (typeof L === 'undefined') {
-    console.warn('Leaflet.js no está disponible');
+function buildGoogleMapsUrl(query) {
+  const target = String(query || '').trim();
+  if (!target) return 'https://www.google.com/maps';
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(target)}`;
+}
+
+function renderFallbackMap(container, address, label) {
+  if (!container || !address || address === 'Por definir' || address === 'Dirección por definir') {
     return;
   }
-  
-  // Cargar mapa de ceremonia
+
+  const encodedAddress = encodeURIComponent(address);
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('title', label);
+  iframe.setAttribute('loading', 'lazy');
+  iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+  iframe.setAttribute('allowfullscreen', 'true');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = '0';
+  iframe.style.borderRadius = '1.2rem';
+  iframe.src = `https://www.google.com/maps?q=${encodedAddress}&z=15&output=embed`;
+
+  container.innerHTML = '';
+  container.appendChild(iframe);
+}
+
+// Función para cargar mapas interactivos usando Leaflet.js
+async function loadMapImages(ceremonyAddress, receptionAddress) {
+  const renderMapFallback = (container, address, label) => {
+    if (!container || !address || address === 'Por definir' || address === 'Dirección por definir') {
+      return;
+    }
+
+    if (container.dataset.mapReady === 'true') {
+      return;
+    }
+
+    renderFallbackMap(container, address, label);
+    container.dataset.mapReady = 'true';
+  };
+
   if (ceremonyAddress && ceremonyAddress !== 'Dirección por definir') {
     const ceremonyMapContainer = document.getElementById('ceremony-map');
-    if (ceremonyMapContainer && !ceremonyMapContainer._leaflet_id) {
+    if (ceremonyMapContainer) {
       try {
         const coords = await geocodeAddress(ceremonyAddress);
-        if (coords) {
-          const ceremonyMap = L.map('ceremony-map', {
+        if (coords && typeof L !== 'undefined' && !ceremonyMapContainer.dataset.mapReady) {
+          ceremonyMapContainer.dataset.mapReady = 'true';
+          ceremonyMapContainer.innerHTML = '';
+          const ceremonyMap = L.map(ceremonyMapContainer, {
             zoom: 15,
             center: [coords.lat, coords.lon],
             scrollWheelZoom: false,
             touchZoom: false,
             dragging: false
           });
-          
+
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '',
             maxZoom: 19
           }).addTo(ceremonyMap);
-          
+
           L.marker([coords.lat, coords.lon], {
             icon: L.icon({
               iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d4af37" width="32" height="32"><path d="M12 0C7.03 0 3 4.03 3 9c0 5.25 9 15 9 15s9-9.75 9-15c0-4.97-4.03-9-9-9zm0 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>',
@@ -137,33 +172,37 @@ async function loadMapImages(ceremonyAddress, receptionAddress) {
               iconAnchor: [16, 32]
             })
           }).addTo(ceremonyMap);
+        } else {
+          renderMapFallback(ceremonyMapContainer, ceremonyAddress, 'Mapa de la ceremonia');
         }
       } catch (e) {
         console.log('Error al cargar mapa de ceremonia:', e);
+        renderMapFallback(ceremonyMapContainer, ceremonyAddress, 'Mapa de la ceremonia');
       }
     }
   }
-  
-  // Cargar mapa de recepción
+
   if (receptionAddress && receptionAddress !== 'Por definir') {
     const receptionMapContainer = document.getElementById('reception-map');
-    if (receptionMapContainer && !receptionMapContainer._leaflet_id) {
+    if (receptionMapContainer) {
       try {
         const coords = await geocodeAddress(receptionAddress);
-        if (coords) {
-          const receptionMap = L.map('reception-map', {
+        if (coords && typeof L !== 'undefined' && !receptionMapContainer.dataset.mapReady) {
+          receptionMapContainer.dataset.mapReady = 'true';
+          receptionMapContainer.innerHTML = '';
+          const receptionMap = L.map(receptionMapContainer, {
             zoom: 15,
             center: [coords.lat, coords.lon],
             scrollWheelZoom: false,
             touchZoom: false,
             dragging: false
           });
-          
+
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '',
             maxZoom: 19
           }).addTo(receptionMap);
-          
+
           L.marker([coords.lat, coords.lon], {
             icon: L.icon({
               iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23d4af37" width="32" height="32"><path d="M12 0C7.03 0 3 4.03 3 9c0 5.25 9 15 9 15s9-9.75 9-15c0-4.97-4.03-9-9-9zm0 12c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>',
@@ -171,9 +210,12 @@ async function loadMapImages(ceremonyAddress, receptionAddress) {
               iconAnchor: [16, 32]
             })
           }).addTo(receptionMap);
+        } else {
+          renderMapFallback(receptionMapContainer, receptionAddress, 'Mapa de la recepción');
         }
       } catch (e) {
         console.log('Error al cargar mapa de recepción:', e);
+        renderMapFallback(receptionMapContainer, receptionAddress, 'Mapa de la recepción');
       }
     }
   }
@@ -200,6 +242,14 @@ async function geocodeAddress(address) {
     console.log('Error al geocodificar dirección:', e);
     return null;
   }
+}
+
+function formatVenueText(venue, address) {
+  const values = [venue, address]
+    .map((value) => String(value || '').trim())
+    .filter((value) => value && value !== 'Por definir' && value !== 'Dirección por definir');
+
+  return values.length ? values.join('<br />') : 'Por definir';
 }
 
 function updateInvitationContent(settings = activeSettings) {
@@ -304,15 +354,19 @@ function updateInvitationContent(settings = activeSettings) {
     const formattedDate = formatDate(ceremonyDate);
     const time = extractTime(ceremonyDate);
     ceremonyDateEl.innerHTML = time ? `${formattedDate}<br /><strong>${time}</strong>` : formattedDate;
+    ceremonyDateEl.title = `${formattedDate}${time ? ` • ${time}` : ''}`;
   }
 
   const ceremonyLocationEl = document.getElementById('ceremony-location');
   if (ceremonyLocationEl) {
-    ceremonyLocationEl.innerHTML = `${ceremonyVenue}<br />${ceremonyAddress}`;
+    ceremonyLocationEl.innerHTML = formatVenueText(ceremonyVenue, ceremonyAddress);
   }
 
   const ceremonyMapLink = document.getElementById('ceremony-map-link');
-  if (ceremonyMapLink) ceremonyMapLink.href = ceremonyMap || 'https://www.google.com/maps';
+  if (ceremonyMapLink) {
+    ceremonyMapLink.href = ceremonyMap || buildGoogleMapsUrl(`${ceremonyVenue} ${ceremonyAddress}`);
+    ceremonyMapLink.textContent = `📍 ${copy.mapLabel || 'Ver en Maps'}`;
+  }
 
   const receptionLabel = document.getElementById('reception-label');
   if (receptionLabel) receptionLabel.textContent = copy.receptionLabel || defaults.receptionLabel;
@@ -325,15 +379,19 @@ function updateInvitationContent(settings = activeSettings) {
     const formattedDate = formatDate(receptionDate);
     const time = extractTime(receptionDate);
     receptionDateEl.innerHTML = time ? `${formattedDate}<br /><strong>${time}</strong>` : formattedDate;
+    receptionDateEl.title = `${formattedDate}${time ? ` • ${time}` : ''}`;
   }
 
   const receptionLocationEl = document.getElementById('reception-location');
   if (receptionLocationEl) {
-    receptionLocationEl.innerHTML = `${receptionVenue}<br />${receptionAddress}`;
+    receptionLocationEl.innerHTML = formatVenueText(receptionVenue, receptionAddress);
   }
 
   const receptionMapLink = document.getElementById('reception-map-link');
-  if (receptionMapLink) receptionMapLink.href = receptionMap || 'https://www.google.com/maps';
+  if (receptionMapLink) {
+    receptionMapLink.href = receptionMap || buildGoogleMapsUrl(`${receptionVenue} ${receptionAddress}`);
+    receptionMapLink.textContent = `📍 ${copy.mapLabel || 'Ver en Maps'}`;
+  }
   
   // Cargar mapas de forma asincrónica después de actualizar el contenido
   loadMapImages(ceremonyAddress, receptionAddress);
@@ -390,7 +448,11 @@ function updateInvitationContent(settings = activeSettings) {
   if (giftsDescription) giftsDescription.textContent = copy.giftsDescription || defaults.giftsDescription;
 
   const dateHighlight = document.getElementById('date-highlight');
-  if (dateHighlight) dateHighlight.textContent = ceremonyDate;
+  if (dateHighlight) {
+    const formattedDate = formatDate(ceremonyDate);
+    const time = extractTime(ceremonyDate);
+    dateHighlight.textContent = `${formattedDate}${time ? ` • ${time}` : ''}`;
+  }
 
   document.title = `${initials} | Nuestra invitación`;
 
@@ -479,7 +541,7 @@ function renderMessageList(messages = []) {
   if (!list) return;
 
   if (!messages.length) {
-    list.innerHTML = '<p class="message-empty">Sé el primero en dejar un mensaje.</p>';
+    list.innerHTML = '<p class="message-empty">Aún no hay mensajes para mostrar.</p>';
     return;
   }
 
@@ -494,6 +556,27 @@ function renderMessageList(messages = []) {
   `).join('');
 }
 
+function renderSongList(songs = []) {
+  const list = document.getElementById('song-list');
+  if (!list) return;
+
+  if (!songs.length) {
+    list.innerHTML = '<p class="message-empty">Todavía no hay canciones sugeridas.</p>';
+    return;
+  }
+
+  list.innerHTML = songs.map((song) => `
+    <article class="message-item">
+      <header>
+        <strong>${(song.Cancion || 'Canción sugerida').replace(/</g, '&lt;')}</strong>
+        <time>${formatRelativeDate(song.Fecha)}</time>
+      </header>
+      <p>${(song.Artista || 'Artista por definir').replace(/</g, '&lt;')}</p>
+      <small>Sugerida por ${(song.Sugerido_Por || 'Invitado').replace(/</g, '&lt;')}</small>
+    </article>
+  `).join('');
+}
+
 async function refreshMessages() {
   try {
     const response = await fetch(apiUrl('/api/mensajes'));
@@ -504,6 +587,21 @@ async function refreshMessages() {
     const list = document.getElementById('message-list');
     if (list) {
       list.innerHTML = '<p class="message-empty">No se pudieron cargar los mensajes en este momento.</p>';
+    }
+    console.error(error);
+  }
+}
+
+async function refreshSongs() {
+  try {
+    const response = await fetch(apiUrl('/api/canciones'));
+    if (!response.ok) throw new Error('No se pudieron cargar las canciones');
+    const songs = await response.json();
+    renderSongList(Array.isArray(songs) ? songs : []);
+  } catch (error) {
+    const list = document.getElementById('song-list');
+    if (list) {
+      list.innerHTML = '<p class="message-empty">No se pudieron cargar las canciones sugeridas en este momento.</p>';
     }
     console.error(error);
   }
@@ -816,7 +914,10 @@ window.addEventListener("load", async () => {
   createMeteors();
   setupCarousel();
   updateCountdown();
-  await refreshMessages();
+  await Promise.all([
+    refreshMessages(),
+    refreshSongs()
+  ]);
   if (song && activeSettings.music && activeSettings.music.enabled !== false) {
     playSong();
   }

@@ -133,20 +133,8 @@
 
       <section class="section community-section" id="mensajes" aria-labelledby="messages-title">
         <p class="eyebrow">Tu mensaje</p>
-        <h2 id="messages-title">Deja un recuerdo para nosotros</h2>
+        <h2 id="messages-title">Recuerdos que nos dejan</h2>
         <div class="community-grid">
-          <form id="message-form" class="community-form">
-            <label>
-              <span>Tu nombre</span>
-              <input type="text" name="nombre" maxlength="80" placeholder="Ej: María y Andrés" required />
-            </label>
-            <label>
-              <span>Mensaje</span>
-              <textarea name="mensaje" maxlength="500" rows="4" placeholder="Escribe un mensaje para los novios..." required></textarea>
-            </label>
-            <button type="submit" class="gold-button small-button">Enviar mensaje</button>
-          </form>
-
           <div class="community-panel">
             <div id="message-list" class="message-list" aria-live="polite"></div>
           </div>
@@ -155,22 +143,10 @@
 
       <section class="section song-section" aria-labelledby="song-title">
         <p class="eyebrow">Playlist</p>
-        <h2 id="song-title">Sugiere una canción</h2>
-        <form id="song-form" class="community-form compact-form">
-          <label>
-            <span>Canción</span>
-            <input type="text" name="cancion" maxlength="120" placeholder="Ej: Perfect - Ed Sheeran" required />
-          </label>
-          <label>
-            <span>Artista</span>
-            <input type="text" name="artista" maxlength="120" placeholder="Opcional" />
-          </label>
-          <label>
-            <span>Sugerido por</span>
-            <input type="text" name="sugeridoPor" maxlength="80" placeholder="Tu nombre" required />
-          </label>
-          <button type="submit" class="gold-button small-button">Enviar sugerencia</button>
-        </form>
+        <h2 id="song-title">Canciones sugeridas</h2>
+        <div class="community-panel">
+          <div id="song-list" class="message-list song-list" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="section gifts-section" id="regalos" aria-labelledby="gifts-title">
@@ -183,7 +159,7 @@
         </div>
       </section>
 
-      <footer class="site-footer"><p id="footer-couple-mark" class="footer-mark">Y <span>&amp;</span> A</p><p>Con amor, <span id="footer-signature">Y &amp; A</span></p><a href="#inicio">Volver al inicio ↑</a></footer>
+      <footer class="site-footer"><p id="footer-couple-mark" class="footer-mark">Y <span>&amp;</span> A</p><p>Con amor, <span id="footer-signature">Y &amp; A</span></p><a href="#inicio">Volver al inicio ↑</a><a href="/admin.html" class="admin-link" aria-label="Abrir panel de administración">Panel admin</a></footer>
       <a class="rsvp-floating-button" href="#asistencia">Confirmar asistencia</a>
 
       <audio id="wedding-song" class="wedding-song" autoplay loop preload="auto">
