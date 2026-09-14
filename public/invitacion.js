@@ -622,7 +622,7 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     const overlay = document.createElement('div'); overlay.className = 'rsvp-overlay';
     const modal = document.createElement('div'); modal.className = 'rsvp-modal';
     modal.innerHTML = `
-      <header class="rsvp-header"><h3>Confirmar asistencia</h3><button class="rsvp-close" aria-label="Cerrar">✕</button></header>
+      <header class="rsvp-header"><div><p class="rsvp-kicker">Invitación</p><h3>Confirmar asistencia</h3></div><button class="rsvp-close" aria-label="Cerrar">✕</button></header>
       <div class="rsvp-body">
         <label class="rsvp-search-label">Buscar invitado:<input class="rsvp-search" type="search" placeholder="Nombre o apellido" autofocus /></label>
         <div class="rsvp-results" role="list" aria-live="polite"></div>
@@ -630,6 +630,22 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
         <div class="rsvp-summary" aria-live="polite"></div>
       </div>
       <footer class="rsvp-footer"><button class="rsvp-submit gold-button">Enviar respuestas</button></footer>
+    `;
+    overlay.appendChild(modal);
+    return { overlay, modal };
+  }
+
+  function createGroupModal() {
+    const overlay = document.createElement('div'); overlay.className = 'rsvp-overlay rsvp-group-overlay';
+    const modal = document.createElement('div'); modal.className = 'rsvp-modal rsvp-group-modal';
+    modal.innerHTML = `
+      <header class="rsvp-header"><div><p class="rsvp-kicker">Grupo vinculado</p><h3>Confirmar a cada persona</h3></div><button class="rsvp-close" aria-label="Cerrar">✕</button></header>
+      <div class="rsvp-body">
+        <p class="rsvp-group-copy">Se encontró a otras personas relacionadas con esta invitación. Revisa y confirma cada respuesta desde esta ventana.</p>
+        <div class="rsvp-members" aria-live="polite"></div>
+        <div class="rsvp-summary" aria-live="polite"></div>
+      </div>
+      <footer class="rsvp-footer"><button class="rsvp-submit gold-button">Guardar respuestas</button></footer>
     `;
     overlay.appendChild(modal);
     return { overlay, modal };
@@ -682,9 +698,10 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     return 'Sin respuesta';
   }
 
-  function updateConfirmationSummary() {
-    const summary = modal.querySelector('.rsvp-summary');
-    const memberRows = Array.from(modal.querySelectorAll('.rsvp-member'));
+  function updateConfirmationSummaryFor(targetModal) {
+    const summary = targetModal && targetModal.querySelector ? targetModal.querySelector('.rsvp-summary') : null;
+    if (!summary) return;
+    const memberRows = Array.from(targetModal.querySelectorAll('.rsvp-member'));
     const selections = memberRows
       .map((row) => {
         const id = row.dataset.id;
@@ -710,11 +727,15 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     `;
   }
 
-  function renderMembers(container, members) {
+  function updateConfirmationSummary() {
+    updateConfirmationSummaryFor(modal);
+  }
+
+  function renderMembers(container, members, targetModal = modal) {
     container.innerHTML = '';
     if (!members || members.length === 0) {
       container.innerHTML = '<p class="muted">No hay miembros pendientes para confirmar.</p>';
-      updateConfirmationSummary();
+      updateConfirmationSummaryFor(targetModal);
       return;
     }
 
@@ -730,23 +751,22 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
         <span class="rsvp-check" aria-hidden="true">✓</span>
         <span class="rsvp-choice-text">Claro que asistiré</span>
       `;
-      yes.addEventListener('change', updateConfirmationSummary);
+      yes.addEventListener('change', () => updateConfirmationSummaryFor(targetModal));
       const no = document.createElement('label'); no.className = 'rsvp-choice';
       no.innerHTML = `
         <input type="radio" name="confirm-${m.ID}" value="No" aria-label="No puedo acompañarlos para ${formatFullName(m)}">
         <span class="rsvp-check" aria-hidden="true">✓</span>
         <span class="rsvp-choice-text">No puedo acompañarlos</span>
       `;
-      no.addEventListener('change', updateConfirmationSummary);
+      no.addEventListener('change', () => updateConfirmationSummaryFor(targetModal));
       right.appendChild(yes); right.appendChild(no);
       row.appendChild(left); row.appendChild(right);
       container.appendChild(row);
     });
-    updateConfirmationSummary();
+    updateConfirmationSummaryFor(targetModal);
   }
 
   async function selectInvite(item) {
-    // if individual, show only the selected person
     let members = [];
     const tipo = (item.Tipo_invitacion || '').toLowerCase();
     if (tipo === 'individual') {
@@ -766,20 +786,35 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
         members = [item];
       }
     }
-    // render members
+
+    if (members.length > 1) {
+      const groupMembers = Array.isArray(members) ? members : [members];
+      const groupMembersContainer = groupModal.querySelector('.rsvp-members');
+      renderMembers(groupMembersContainer, groupMembers, groupModal);
+      groupOverlay.style.display = '';
+      const firstField = groupModal.querySelector('input[type="radio"]');
+      if (firstField) firstField.focus();
+      return;
+    }
+
     const membersContainer = modal.querySelector('.rsvp-members');
-    renderMembers(membersContainer, members);
+    renderMembers(membersContainer, members, modal);
   }
 
   // wire modal behavior
   const { overlay, modal } = createModal();
+  const { overlay: groupOverlay, modal: groupModal } = createGroupModal();
   document.body.appendChild(overlay);
+  document.body.appendChild(groupOverlay);
   overlay.style.display = 'none';
+  groupOverlay.style.display = 'none';
 
   const searchInput = modal.querySelector('.rsvp-search');
   const resultsContainer = modal.querySelector('.rsvp-results');
   const submitBtn = modal.querySelector('.rsvp-submit');
   const closeBtn = modal.querySelector('.rsvp-close');
+  const groupSubmitBtn = groupModal.querySelector('.rsvp-submit');
+  const groupCloseBtn = groupModal.querySelector('.rsvp-close');
 
   function openModal() {
     overlay.style.display = '';
@@ -792,9 +827,12 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     searchInput.focus();
   }
   function closeModal() { overlay.style.display = 'none'; }
+  function closeGroupModal() { groupOverlay.style.display = 'none'; }
 
   closeBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  groupCloseBtn.addEventListener('click', closeGroupModal);
+  groupOverlay.addEventListener('click', (e) => { if (e.target === groupOverlay) closeGroupModal(); });
 
   const debouncedSearch = debounce((q) => {
     if (!q) return resultsContainer.innerHTML = '<p class="muted">Ingrese un nombre para buscar.</p>';
@@ -803,8 +841,8 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
 
   searchInput.addEventListener('input', (e) => debouncedSearch(e.target.value.trim()));
 
-  submitBtn.addEventListener('click', async () => {
-    const memberRows = Array.from(modal.querySelectorAll('.rsvp-member'));
+  async function submitSelectedResponses(targetModal, button) {
+    const memberRows = Array.from(targetModal.querySelectorAll('.rsvp-member'));
     const updates = [];
     memberRows.forEach((row) => {
       const id = row.dataset.id;
@@ -825,20 +863,24 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     }
 
     try {
-      submitBtn.disabled = true; submitBtn.textContent = 'Enviando...';
+      button.disabled = true; button.textContent = 'Enviando...';
       const payloadToSend = updates.map(({ id, asistencia }) => ({ id, asistencia }));
       const res = await fetch(apiUrl('/api/confirmar'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadToSend) });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error || 'Error al guardar confirmaciones');
       alert('Confirmaciones guardadas correctamente. La página se actualizará para reflejar los cambios.');
       closeModal();
+      closeGroupModal();
       window.location.reload();
     } catch (err) {
       console.error(err);
       alert('Error al guardar confirmaciones: ' + err.message);
-      submitBtn.disabled = false; submitBtn.textContent = 'Enviar respuestas';
+      button.disabled = false; button.textContent = targetModal === groupModal ? 'Guardar respuestas' : 'Enviar respuestas';
     }
-  });
+  }
+
+  submitBtn.addEventListener('click', () => submitSelectedResponses(modal, submitBtn));
+  groupSubmitBtn.addEventListener('click', () => submitSelectedResponses(groupModal, groupSubmitBtn));
 
   // open modal on button click
   rsvpBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(); });

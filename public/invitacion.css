@@ -147,7 +147,7 @@ body {
 .swatch.emerald::after { content: "Verde Esmeralda"; }
 .album-section { background: transparent; }.qr-frame { display: grid; width: 11rem; height: 11rem; margin: 2rem auto; place-content: center; gap: .5rem; border: 1px dashed var(--gold); color: var(--gold-light); background: rgba(8, 37, 27, .62); }.qr-frame span { font-family: Georgia, serif; font-size: 3rem; }.qr-frame small { font-size: .6rem; }.guest-album { display: grid; max-width: 32rem; min-height: 7rem; margin: auto; place-items: center; border: 1px dashed var(--gold); color: rgba(255, 248, 230, .72); }.guest-album span { color: var(--gold); font-size: 2rem; }.guest-album p { margin: 0; font-size: .8rem; }
 .qr-frame img { display: block; width: min(100%, 14rem); aspect-ratio: 1; object-fit: contain; border-radius: 1rem; box-shadow: 0 1rem 2.2rem rgba(7, 26, 19, .18); }
-.community-section, .song-section { background: rgba(255,255,255,.03); }
+.community-section, .song-section { background: linear-gradient(135deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); }
 .community-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
 .community-form {
   display: grid;
@@ -155,7 +155,7 @@ body {
   padding: 1.5rem;
   border: 1px solid rgba(212, 175, 55, .25);
   border-radius: 1.35rem;
-  background: rgba(255,255,255,.06);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
   text-align: left;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
@@ -166,15 +166,23 @@ body {
 .community-form input::placeholder, .community-form textarea::placeholder { color: rgba(255, 248, 230, 0.7); }
 .community-panel { padding: 1.2rem; border: 1px solid rgba(212, 175, 55, .25); border-radius: 1.35rem; background: rgba(255,255,255,.04); }
 .message-list { display: grid; gap: .9rem; max-height: 24rem; overflow: auto; }
-.message-card { padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,.07); border: 1px solid rgba(212, 175, 55, .24); text-align: left; }
-.message-card header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: .5rem; }
-.message-card strong { color: var(--text-strong); font-size: 1rem; }
-.message-card time { color: rgba(255, 248, 230, 0.76); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
-.message-card p { margin: 0; color: rgba(255, 248, 230, 0.98); line-height: 1.7; font-size: 0.98rem; }
-.empty-message { margin: 0; padding: 1rem; border-radius: .8rem; border: 1px dashed rgba(212, 175, 55, .25); color: rgba(255, 248, 230, 0.74); }
-
+.message-item, .message-card { padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,.07); border: 1px solid rgba(212, 175, 55, .24); text-align: left; }
+.message-item header, .message-card header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: .5rem; }
+.message-item strong, .message-card strong { color: var(--text-strong); font-size: 1rem; }
+.message-item time, .message-card time { color: rgba(255, 248, 230, 0.76); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.message-item p, .message-card p { margin: 0; color: rgba(255, 248, 230, 0.98); line-height: 1.7; font-size: 0.98rem; }
+.message-empty, .empty-message { margin: 0; padding: 1rem; border-radius: .8rem; border: 1px dashed rgba(212, 175, 55, .25); color: rgba(255, 248, 230, 0.74); }
+.form-feedback { margin: .25rem 0 0; color: var(--gold-light); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .small-button { width: fit-content; min-width: 12rem; }
 .compact-form { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; }
+.rsvp-kicker { margin: 0 0 .35rem; color: rgba(23, 53, 42, .66); letter-spacing: .16em; text-transform: uppercase; font-size: .62rem; font-weight: 700; }
+.rsvp-group-copy { margin: 0 0 .8rem; color: rgba(23, 53, 42, .78); font-size: .95rem; line-height: 1.6; }
+.rsvp-choice { display: inline-flex; align-items: center; gap: .55rem; min-height: 2.9rem; padding: .7rem .9rem; border: 1px solid rgba(23,53,42,.14); border-radius: 12px; background: rgba(255,255,255,.75); color: #17352a; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
+.rsvp-choice:hover { border-color: rgba(212,175,55,.7); background: rgba(244,220,145,.14); transform: translateY(-1px); }
+.rsvp-choice input { margin: 0; accent-color: #163a2b; }
+.rsvp-check { display: inline-flex; width: 1.1rem; height: 1.1rem; align-items: center; justify-content: center; border-radius: 50%; background: rgba(23,53,42,.08); font-size: .8rem; color: transparent; }
+.rsvp-choice input:checked + .rsvp-check { background: rgba(212,175,55,.2); color: #17352a; }
+.rsvp-choice-text { font-size: .9rem; }
 .rsvp-section { max-width: none; color: #fff8e6; background: linear-gradient(135deg, rgba(80, 200, 120, .82), rgba(13, 104, 65, .84)); }.rsvp-section h2 { color: #fff8e6; }.rsvp-section .eyebrow { color: var(--gold-light); }.rsvp-section > p:not(.eyebrow) { color: rgba(255, 248, 230, .9); }.gold-button { display: inline-flex; align-items: center; justify-content: center; margin-top: 2rem; color: #fff8e6; }
 .golden-button, .gold-button { min-height: 3rem; }
 .gold-button:hover { color: var(--deep); }
