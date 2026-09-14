@@ -30,7 +30,7 @@ body {
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.6;
-  background: var(--color-surface);
+  background: linear-gradient(180deg, #041710 0%, #071f18 18%, #0d2f26 100%);
 }
 .invitation-page { position: relative; overflow: hidden; background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--color-primary) 74%, white), var(--color-surface) 72%); }
 .site-header { position: fixed; top: 0; right: 0; left: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem clamp(1.2rem, 5vw, 4rem); color: #fff8e6; background: linear-gradient(180deg, rgba(4, 20, 14, .78), rgba(4, 20, 14, .2)); backdrop-filter: blur(.35rem); }
@@ -61,8 +61,17 @@ body {
 .quote-reference { margin: 0; color: var(--gold-light); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; }
 .scroll-cue { display: grid; width: 3rem; height: 3rem; margin: 4rem auto 0; place-items: center; border: 1px solid var(--gold); border-radius: 50%; color: var(--gold-light); font-size: 1.3rem; text-decoration: none; animation: float 1.8s ease-in-out infinite; }
 .section { position: relative; z-index: 1; max-width: 76rem; margin: 0 auto; padding: clamp(4.5rem, 8vw, 7.5rem) clamp(1.2rem, 5vw, 4rem); text-align: center; }
-.section h2 { margin: 0; color: var(--ink); font-family: var(--font-heading); font-size: clamp(2.4rem, 5vw, 4.4rem); font-weight: 400; line-height: 1.06; }
+.section h2 { margin: 0; color: var(--ink); font-family: var(--font-heading); font-size: clamp(2.4rem, 5vw, 4.4rem); font-weight: 400; line-height: 1.06; letter-spacing: .02em; }
 .section > p:not(.eyebrow) { max-width: 38rem; margin: 1.3rem auto 0; color: var(--text-soft); line-height: 1.8; font-size: 1.08rem; }
+.section:not(.welcome-section):not(.countdown-section):not(.rsvp-section)::before {
+  content: "";
+  position: absolute;
+  inset: 2rem auto auto 50%;
+  width: min(16rem, 26vw);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .8), transparent);
+}
 .countdown-section { position: relative; max-width: none; overflow: hidden; color: #fff8e6; background: radial-gradient(circle at 12% 25%, rgba(244, 220, 145, .85) 0 1px, transparent 2px), radial-gradient(circle at 78% 18%, rgba(244, 220, 145, .72) 0 1px, transparent 2px), radial-gradient(circle at 64% 76%, rgba(80, 200, 120, .8) 0 1px, transparent 2px), radial-gradient(circle at 34% 62%, rgba(244, 220, 145, .7) 0 1px, transparent 2px), transparent; }
 .countdown-section::before, .countdown-section::after { position: absolute; content: "✦  ·  ✧  ·  ✦  ·  ✧  ·  ✦  ·  ✧"; color: rgba(212, 175, 55, .2); font-size: clamp(1.5rem, 4vw, 3rem); letter-spacing: 1.4em; line-height: 2.5; pointer-events: none; transform: rotate(-12deg); }
 .countdown-section::before { top: 8%; left: -8%; width: 120%; }
@@ -79,7 +88,7 @@ body {
 .events-section { max-width: none; color: #fff8e6; background: linear-gradient(135deg, rgba(5, 27, 19, .86), rgba(13, 71, 45, .78)); }
 .events-section h2 { color: var(--gold-light); }.events-section > .eyebrow { color: var(--emerald); }
 .event-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 4vw, 3rem); margin-top: 3rem; }
-.event-card { position: relative; overflow: hidden; padding: 0 clamp(1.7rem, 4vw, 3.4rem) clamp(1.8rem, 4vw, 3.4rem); border: 1px solid rgba(212, 175, 55, .5); border-radius: 2.2rem 2.2rem .75rem .75rem; background: rgba(255, 255, 255, .5); box-shadow: 0 1.2rem 2.5rem rgba(17, 55, 39, .1), inset 0 0 0 1px rgba(255, 255, 255, .38); transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease; }
+.event-card { position: relative; overflow: hidden; padding: 0 clamp(1.7rem, 4vw, 3.4rem) clamp(1.8rem, 4vw, 3.4rem); border: 1px solid rgba(212, 175, 55, .52); border-radius: 2.2rem 2.2rem 1.3rem 1.3rem; background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.38)); box-shadow: 0 1.2rem 2.5rem rgba(17, 55, 39, .1), inset 0 0 0 1px rgba(255, 255, 255, .4); transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease; }
 .event-card::after { position: absolute; right: 10%; bottom: .7rem; left: 10%; height: 1px; background: linear-gradient(90deg, transparent, rgba(212, 175, 55, .7), transparent); content: ""; }
 .event-card:hover { border-color: rgba(212, 175, 55, .85); box-shadow: 0 1.5rem 3rem rgba(17, 55, 39, .16), inset 0 0 0 1px rgba(255, 255, 255, .55); transform: translateY(-.45rem); }
 .venue-thumbnail { position: relative; display: grid; height: 15rem; margin: 0 calc(clamp(1.7rem, 4vw, 3.4rem) * -1) 2.2rem; grid-template-rows: 1fr 3.7rem; overflow: hidden; color: rgba(255, 247, 207, .9); background-color: #123b2b; border-radius: 2.2rem 2.2rem 0 0; }
@@ -147,7 +156,7 @@ body {
 .swatch.emerald::after { content: "Verde Esmeralda"; }
 .album-section { background: transparent; }.qr-frame { display: grid; width: 11rem; height: 11rem; margin: 2rem auto; place-content: center; gap: .5rem; border: 1px dashed var(--gold); color: var(--gold-light); background: rgba(8, 37, 27, .62); }.qr-frame span { font-family: Georgia, serif; font-size: 3rem; }.qr-frame small { font-size: .6rem; }.guest-album { display: grid; max-width: 32rem; min-height: 7rem; margin: auto; place-items: center; border: 1px dashed var(--gold); color: rgba(255, 248, 230, .72); }.guest-album span { color: var(--gold); font-size: 2rem; }.guest-album p { margin: 0; font-size: .8rem; }
 .qr-frame img { display: block; width: min(100%, 14rem); aspect-ratio: 1; object-fit: contain; border-radius: 1rem; box-shadow: 0 1rem 2.2rem rgba(7, 26, 19, .18); }
-.community-section, .song-section { background: linear-gradient(135deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); }
+.community-section, .song-section { background: linear-gradient(135deg, rgba(255,255,255,.035), rgba(255,255,255,.015)); }
 .community-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
 .community-form {
   display: grid;
@@ -157,14 +166,14 @@ body {
   border-radius: 1.35rem;
   background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
   text-align: left;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 .8rem 1.4rem rgba(0,0,0,.09);
 }
 .community-form label { display: grid; gap: .45rem; color: rgba(255, 248, 230, 0.98); font-weight: 700; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; }
 .community-form input, .community-form textarea { width: 100%; border: 1px solid rgba(212, 175, 55, .32); border-radius: .9rem; background: rgba(255,255,255,.09); padding: .9rem 1rem; color: #fff8e6; font: inherit; font-size: 1rem; line-height: 1.5; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
 .community-form input:focus, .community-form textarea:focus { outline: none; border-color: rgba(244, 220, 145, 0.9); box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18); background: rgba(255,255,255,.12); }
 .community-form textarea { min-height: 8rem; resize: vertical; }
 .community-form input::placeholder, .community-form textarea::placeholder { color: rgba(255, 248, 230, 0.7); }
-.community-panel { padding: 1.2rem; border: 1px solid rgba(212, 175, 55, .25); border-radius: 1.35rem; background: rgba(255,255,255,.04); }
+.community-panel { padding: 1.2rem; border: 1px solid rgba(212, 175, 55, .25); border-radius: 1.35rem; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow: inset 0 1px 0 rgba(255,255,255,.04); }
 .message-list { display: grid; gap: .9rem; max-height: 24rem; overflow: auto; }
 .message-item, .message-card { padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,.07); border: 1px solid rgba(212, 175, 55, .24); text-align: left; }
 .message-item header, .message-card header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: .5rem; }
@@ -177,6 +186,16 @@ body {
 .compact-form { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; }
 .rsvp-kicker { margin: 0 0 .35rem; color: rgba(23, 53, 42, .66); letter-spacing: .16em; text-transform: uppercase; font-size: .62rem; font-weight: 700; }
 .rsvp-group-copy { margin: 0 0 .8rem; color: rgba(23, 53, 42, .78); font-size: .95rem; line-height: 1.6; }
+.rsvp-community { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
+.rsvp-community-card { padding: 1rem; border: 1px solid rgba(23,53,42,.1); border-radius: 16px; background: rgba(255,255,255,.62); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+.rsvp-community-card h4 { margin: 0 0 .8rem; color: #0d2d25; font-size: 1rem; }
+.rsvp-message-form, .rsvp-song-form { display: grid; gap: .75rem; }
+.rsvp-message-form label, .rsvp-song-form label { display: grid; gap: .4rem; color: #17352a; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.rsvp-message-form input, .rsvp-message-form textarea, .rsvp-song-form input { width: 100%; padding: .7rem .8rem; border: 1px solid rgba(23,53,42,.18); border-radius: 10px; background: #fff; color: #17352a; font: inherit; }
+.rsvp-message-form textarea { resize: vertical; min-height: 6.6rem; }
+.rsvp-message-form input:focus, .rsvp-message-form textarea:focus, .rsvp-song-form input:focus { border-color: rgba(212,175,55,.7); outline: none; box-shadow: 0 0 0 2px rgba(212,175,55,.15); }
+.rsvp-inline-submit { border: 1px solid rgba(212,175,55,.7); border-radius: 999px; padding: .65rem .9rem; background: linear-gradient(135deg, #f4dc91, #d4af37); color: #163a2b; font: 700 .68rem "Trebuchet MS", sans-serif; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+.rsvp-inline-feedback { min-height: 1.2rem; margin: 0; color: #163a2b; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
 .rsvp-choice { display: inline-flex; align-items: center; gap: .55rem; min-height: 2.9rem; padding: .7rem .9rem; border: 1px solid rgba(23,53,42,.14); border-radius: 12px; background: rgba(255,255,255,.75); color: #17352a; cursor: pointer; transition: border-color .2s ease, background .2s ease, transform .2s ease; }
 .rsvp-choice:hover { border-color: rgba(212,175,55,.7); background: rgba(244,220,145,.14); transform: translateY(-1px); }
 .rsvp-choice input { margin: 0; accent-color: #163a2b; }

@@ -618,6 +618,32 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
   }
 
   // create modal
+  function createCommunityFormsMarkup() {
+    return `
+      <div class="rsvp-community">
+        <div class="rsvp-community-card">
+          <h4>Mensaje para los novios</h4>
+          <form class="rsvp-message-form" novalidate>
+            <label><span>Tu nombre</span><input class="rsvp-inline-name" type="text" name="nombre" maxlength="80" placeholder="Tu nombre" /></label>
+            <label><span>Mensaje</span><textarea name="mensaje" maxlength="500" rows="3" placeholder="Escribe un mensaje para la pareja..."></textarea></label>
+            <button type="submit" class="rsvp-inline-submit">Enviar mensaje</button>
+            <p class="rsvp-inline-feedback" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="rsvp-community-card">
+          <h4>Sugerir una canción</h4>
+          <form class="rsvp-song-form" novalidate>
+            <label><span>Canción</span><input type="text" name="cancion" maxlength="120" placeholder="Ej: Perfect - Ed Sheeran" /></label>
+            <label><span>Artista</span><input type="text" name="artista" maxlength="120" placeholder="Opcional" /></label>
+            <label><span>Sugerido por</span><input class="rsvp-inline-name" type="text" name="sugeridoPor" maxlength="80" placeholder="Tu nombre" /></label>
+            <button type="submit" class="rsvp-inline-submit">Enviar sugerencia</button>
+            <p class="rsvp-inline-feedback" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
   function createModal() {
     const overlay = document.createElement('div'); overlay.className = 'rsvp-overlay';
     const modal = document.createElement('div'); modal.className = 'rsvp-modal';
@@ -628,6 +654,7 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
         <div class="rsvp-results" role="list" aria-live="polite"></div>
         <div class="rsvp-members" aria-live="polite"></div>
         <div class="rsvp-summary" aria-live="polite"></div>
+        ${createCommunityFormsMarkup()}
       </div>
       <footer class="rsvp-footer"><button class="rsvp-submit gold-button">Enviar respuestas</button></footer>
     `;
@@ -644,6 +671,7 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
         <p class="rsvp-group-copy">Se encontró a otras personas relacionadas con esta invitación. Revisa y confirma cada respuesta desde esta ventana.</p>
         <div class="rsvp-members" aria-live="polite"></div>
         <div class="rsvp-summary" aria-live="polite"></div>
+        ${createCommunityFormsMarkup()}
       </div>
       <footer class="rsvp-footer"><button class="rsvp-submit gold-button">Guardar respuestas</button></footer>
     `;
@@ -731,6 +759,13 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     updateConfirmationSummaryFor(modal);
   }
 
+  function setDefaultNamesForModal(targetModal, guestName) {
+    const inputNames = targetModal.querySelectorAll('.rsvp-inline-name');
+    inputNames.forEach((input) => {
+      if (input && !input.value.trim() && guestName) input.value = guestName;
+    });
+  }
+
   function renderMembers(container, members, targetModal = modal) {
     container.innerHTML = '';
     if (!members || members.length === 0) {
@@ -766,6 +801,12 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
     updateConfirmationSummaryFor(targetModal);
   }
 
+  function applySelectedGuestNames(modalTarget, members) {
+    const guestName = Array.isArray(members) && members.length ? formatFullName(members[0]) : '';
+    if (!guestName) return;
+    setDefaultNamesForModal(modalTarget, guestName);
+  }
+
   async function selectInvite(item) {
     let members = [];
     const tipo = (item.Tipo_invitacion || '').toLowerCase();
@@ -791,6 +832,7 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
       const groupMembers = Array.isArray(members) ? members : [members];
       const groupMembersContainer = groupModal.querySelector('.rsvp-members');
       renderMembers(groupMembersContainer, groupMembers, groupModal);
+      applySelectedGuestNames(groupModal, groupMembers);
       groupOverlay.style.display = '';
       const firstField = groupModal.querySelector('input[type="radio"]');
       if (firstField) firstField.focus();
@@ -799,6 +841,7 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
 
     const membersContainer = modal.querySelector('.rsvp-members');
     renderMembers(membersContainer, members, modal);
+    applySelectedGuestNames(modal, members);
   }
 
   // wire modal behavior
@@ -878,6 +921,73 @@ invitationPage.addEventListener("pointerdown", () => { if (!songStarted) playSon
       button.disabled = false; button.textContent = targetModal === groupModal ? 'Guardar respuestas' : 'Enviar respuestas';
     }
   }
+
+  function attachInlineForms(targetModal) {
+    const messageForm = targetModal.querySelector('.rsvp-message-form');
+    const songForm = targetModal.querySelector('.rsvp-song-form');
+
+    if (messageForm) {
+      messageForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(messageForm);
+        const nombre = String(formData.get('nombre') || '').trim();
+        const mensaje = String(formData.get('mensaje') || '').trim();
+        const feedback = messageForm.querySelector('.rsvp-inline-feedback');
+
+        if (!nombre || !mensaje) {
+          if (feedback) feedback.textContent = 'Escribe tu nombre y un mensaje para los novios.';
+          return;
+        }
+
+        try {
+          const response = await fetch(apiUrl('/api/mensajes'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nombre, mensaje })
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.error || 'No se pudo guardar el mensaje');
+          messageForm.reset();
+          if (feedback) feedback.textContent = '¡Mensaje enviado para los novios!';
+        } catch (error) {
+          if (feedback) feedback.textContent = error.message || 'No se pudo enviar el mensaje.';
+        }
+      });
+    }
+
+    if (songForm) {
+      songForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(songForm);
+        const cancion = String(formData.get('cancion') || '').trim();
+        const artista = String(formData.get('artista') || '').trim();
+        const sugeridoPor = String(formData.get('sugeridoPor') || '').trim();
+        const feedback = songForm.querySelector('.rsvp-inline-feedback');
+
+        if (!cancion || !sugeridoPor) {
+          if (feedback) feedback.textContent = 'La canción y tu nombre son obligatorios.';
+          return;
+        }
+
+        try {
+          const response = await fetch(apiUrl('/api/canciones'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cancion, artista, sugeridoPor })
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.error || 'No se pudo guardar la sugerencia');
+          songForm.reset();
+          if (feedback) feedback.textContent = '¡Gracias por la sugerencia!';
+        } catch (error) {
+          if (feedback) feedback.textContent = error.message || 'No se pudo enviar la sugerencia.';
+        }
+      });
+    }
+  }
+
+  attachInlineForms(modal);
+  attachInlineForms(groupModal);
 
   submitBtn.addEventListener('click', () => submitSelectedResponses(modal, submitBtn));
   groupSubmitBtn.addEventListener('click', () => submitSelectedResponses(groupModal, groupSubmitBtn));
