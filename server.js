@@ -1179,14 +1179,55 @@ app.get('/api/admin/session', (req, res) => {
   });
 });
 
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const username = String(req.body.username || '').trim();
   const password = String(req.body.password || '');
+  const redirectTo = req.body.next || '/admin';
 
+  // If Supabase is configured, prefer using Supabase Auth for admin authentication
+  if (hasSupabase()) {
+    try {
+      let authResult = null;
+      let emailCandidate = username;
+
+      // If the provided username looks like an email, try signing in directly
+      if (emailCandidate.includes('@')) {
+        authResult = await supabase.auth.signInWithPassword({ email: emailCandidate, password });
+      } else {
+        // If not an email, try to find a mapped admin record in an 'admins' table (optional)
+        try {
+          const { data: adminRow, error: adminErr } = await supabase.from('admins').select('email').eq('username', username).maybeSingle();
+          if (!adminErr && adminRow && adminRow.email) {
+            emailCandidate = adminRow.email;
+            authResult = await supabase.auth.signInWithPassword({ email: emailCandidate, password });
+          } else {
+            // Fallback: attempt signIn treating the username as email (in case admin used email as username)
+            authResult = await supabase.auth.signInWithPassword({ email: username, password });
+          }
+        } catch (innerErr) {
+          // If the optional lookup fails, still attempt sign-in with the raw username
+          authResult = await supabase.auth.signInWithPassword({ email: username, password });
+        }
+      }
+
+      if (authResult && authResult.error) {
+        return res.status(401).json({ error: 'Credenciales inválidas' });
+      }
+
+      const user = authResult && authResult.data && authResult.data.user ? authResult.data.user : null;
+      req.session.isAdminAuthenticated = true;
+      req.session.adminUsername = (user && (user.email || user.user_metadata?.username)) || username;
+      return res.json({ success: true, redirect: redirectTo });
+    } catch (err) {
+      console.error('Error authenticating with Supabase:', err);
+      return res.status(500).json({ error: 'Error al autenticar con el proveedor de usuarios' });
+    }
+  }
+
+  // Fallback to environment-based admin credentials
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
     req.session.isAdminAuthenticated = true;
     req.session.adminUsername = username;
-    const redirectTo = req.body.next || '/admin';
     return res.json({ success: true, redirect: redirectTo });
   }
 
