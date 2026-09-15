@@ -474,7 +474,8 @@ function renderDressSwatches(settings = activeSettings) {
 
   swatchContainer.innerHTML = colors.map((colorRow) => {
     const hex = (colorRow && colorRow.value) || '#D4AF37';
-    return `<span class="swatch" style="background:${hex};" data-color="${hex}" aria-label="Color ${hex}" title="${hex}"></span>`;
+    const label = hex.toLowerCase() === '#163a2b' ? 'Verde' : hex.toLowerCase() === '#d4af37' ? 'Dorado' : hex.toLowerCase() === '#f2d9a0' ? 'Blanco' : hex.toUpperCase();
+    return `<span class="swatch" style="background:${hex};" data-color="${label}" aria-label="Color ${label}" title="${label}"></span>`;
   }).join('');
 }
 
