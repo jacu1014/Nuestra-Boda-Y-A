@@ -736,12 +736,89 @@ function normalizeSettings(settings) {
   };
 }
 
+async function readGalleryPhrasesFromSupabase() {
+  if (!hasSupabase()) {
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('gallery_phrases')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      throw new Error(error.message || 'No se pudieron leer las frases del carrusel desde Supabase.');
+    }
+
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.warn('No se pudieron cargar las frases del carrusel desde Supabase:', error.message || error);
+    return [];
+  }
+}
+
+function applyGalleryPhraseRows(gallery, phraseRows = []) {
+  if (!Array.isArray(gallery) || !gallery.length || !Array.isArray(phraseRows) || !phraseRows.length) {
+    return gallery;
+  }
+
+  const rowMap = new Map();
+  phraseRows.forEach((row) => {
+    if (!row || !row.image_url) return;
+    rowMap.set(String(row.image_url).trim(), row);
+  });
+
+  return gallery.map((item) => {
+    if (!item || typeof item !== 'object') return item;
+    const match = rowMap.get(String(item.src || '').trim());
+    if (!match) return item;
+    const phrase = typeof match.phrase === 'string' && match.phrase.trim() ? match.phrase.trim() : (item.phrase || item.caption || '');
+    const caption = typeof match.caption === 'string' && match.caption.trim() ? match.caption.trim() : (item.caption || phrase || '');
+    return {
+      ...item,
+      caption,
+      phrase,
+      enabled: item.enabled !== undefined ? Boolean(item.enabled) : match.enabled !== false
+    };
+  });
+}
+
+async function saveGalleryPhraseRowsToSupabase(gallery = []) {
+  if (!hasSupabase() || !Array.isArray(gallery) || !gallery.length) {
+    return;
+  }
+
+  const rows = gallery.map((item, index) => ({
+    id: String(item && item.id ? item.id : `gallery-${index + 1}`),
+    image_url: String(item && item.src ? item.src : '').trim(),
+    phrase: String(item && item.phrase ? item.phrase : item.caption || '').trim(),
+    caption: String(item && item.caption ? item.caption : item.phrase || '').trim(),
+    enabled: item && item.enabled !== undefined ? Boolean(item.enabled) : true,
+    sort_order: index,
+    updated_at: new Date().toISOString()
+  })).filter((row) => row.image_url);
+
+  if (!rows.length) return;
+
+  const { error } = await supabase.from('gallery_phrases').upsert(rows, { onConflict: 'id' });
+  if (error) {
+    throw new Error(error.message || 'No se pudieron guardar las frases del carrusel en Supabase.');
+  }
+}
+
 async function readWeddingSettings() {
   try {
     if (fs.existsSync(SETTINGS_PATH)) {
       const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
       if (raw.trim()) {
-        return normalizeSettings(JSON.parse(raw));
+        const localSettings = normalizeSettings(JSON.parse(raw));
+        if (hasSupabase()) {
+          const phraseRows = await readGalleryPhrasesFromSupabase();
+          localSettings.gallery = applyGalleryPhraseRows(localSettings.gallery, phraseRows);
+        }
+        return localSettings;
       }
     }
   } catch (error) {
@@ -755,13 +832,21 @@ async function readWeddingSettings() {
         throw new Error(error.message || 'No se pudieron leer los ajustes desde Supabase.');
       }
       const value = data && data.value ? data.value : {};
-      return normalizeSettings(value);
+      const remoteSettings = normalizeSettings(value);
+      const phraseRows = await readGalleryPhrasesFromSupabase();
+      remoteSettings.gallery = applyGalleryPhraseRows(remoteSettings.gallery, phraseRows);
+      return remoteSettings;
     } catch (error) {
       console.error('No se pudieron leer los ajustes de la boda desde Supabase:', error);
     }
   }
 
-  return { ...DEFAULT_SETTINGS };
+  const fallbackSettings = { ...DEFAULT_SETTINGS };
+  if (hasSupabase()) {
+    const phraseRows = await readGalleryPhrasesFromSupabase();
+    fallbackSettings.gallery = applyGalleryPhraseRows(fallbackSettings.gallery, phraseRows);
+  }
+  return fallbackSettings;
 }
 
 async function writeWeddingSettings(settings) {
@@ -779,6 +864,8 @@ async function writeWeddingSettings(settings) {
       if (error) {
         throw new Error(error.message || 'No se pudieron guardar los ajustes en Supabase.');
       }
+
+      await saveGalleryPhraseRowsToSupabase(normalized.gallery || []);
     } catch (error) {
       console.warn('Se guardaron los cambios locales, pero hubo un error al sincronizar con Supabase:', error.message || error);
     }
@@ -815,6 +902,25 @@ app.get('/api/settings', async (req, res) => {
 app.get('/api/public', async (req, res) => {
   const settings = await readWeddingSettings();
   res.json(settings);
+});
+
+app.get('/api/gallery/phrases', requireAdmin, async (req, res) => {
+  try {
+    const settings = await readWeddingSettings();
+    const gallery = Array.isArray(settings.gallery) ? settings.gallery : [];
+    const phraseRows = await readGalleryPhrasesFromSupabase();
+    const merged = applyGalleryPhraseRows(gallery, phraseRows).map((item) => ({
+      id: item.id || `gallery-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+      src: item.src || '',
+      caption: item.caption || item.phrase || '',
+      phrase: item.phrase || item.caption || '',
+      enabled: item.enabled !== undefined ? Boolean(item.enabled) : true
+    })).filter((item) => item.src);
+    return res.json(merged);
+  } catch (error) {
+    console.error('No se pudieron cargar las frases del carrusel:', error);
+    return res.status(500).json({ error: 'No se pudieron cargar las frases del carrusel.' });
+  }
 });
 
 app.put('/api/settings', requireAdmin, express.json(), async (req, res) => {

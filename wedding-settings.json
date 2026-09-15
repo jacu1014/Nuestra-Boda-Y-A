@@ -206,7 +206,7 @@
     "galleryEyebrow": "Nuestros momentos",
     "galleryTitle": "Un poco de nosotros",
     "dressEyebrow": "Código de vestimenta",
-    "dressTitle": "Semi-formal",
+    "dressTitle": "Casual Elegante",
     "dressDescription": "Queremos verlos brillar junto a nosotros en esta noche tan especial.",
     "dressColorsLabel": "Colores reservados",
     "albumEyebrow": "Tus fotos también cuentan la historia",
@@ -219,7 +219,7 @@
     "giftsEyebrow": "Tu presencia es el mejor regalo",
     "giftsTitle": "Lluvia de sobres",
     "giftsDescription": "Con tu presencia ya nos haces muy felices. Si deseas acompañarnos con un detalle, lo haremos en una lluvia de sobres.",
-    "giftsButton": "Ver regalo",
+    "giftsButton": "Ver detalle",
     "musicLabel": "Música",
     "mapLabel": "Maps",
     "wazeLabel": "Waze",
@@ -241,19 +241,19 @@
     "notes": "Recordatorio para coordinación del evento",
     "checklist": [
       {
-        "id": "org-1789435480176-3cf8e6",
+        "id": "org-1789439915810-50335e",
         "title": "Confirmación de asistencia",
         "owner": "",
         "done": false
       },
       {
-        "id": "org-1789435480176-164f65",
+        "id": "org-1789439915810-cff293",
         "title": "Confirmar estrategia musical",
         "owner": "Pareja",
         "done": false
       },
       {
-        "id": "org-1789435480176-9c5e2c",
+        "id": "org-1789439915810-6e27c1",
         "title": "Revisión final de la decoración",
         "owner": "",
         "done": false
