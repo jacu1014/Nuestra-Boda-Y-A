@@ -546,9 +546,12 @@ function renderMessageList(messages = []) {
   }
 
   list.innerHTML = messages.map((message) => `
-    <article class="message-item">
+    <article class="message-item public-card">
       <header>
-        <strong>${(message.Nombre || 'Invitado').replace(/</g, '&lt;')}</strong>
+        <div class="card-meta">
+          <span class="card-tag">Mensaje</span>
+          <strong>${(message.Nombre || 'Invitado').replace(/</g, '&lt;')}</strong>
+        </div>
         <time>${formatRelativeDate(message.Fecha)}</time>
       </header>
       <p>${(message.Mensaje || '').replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p>
@@ -566,9 +569,12 @@ function renderSongList(songs = []) {
   }
 
   list.innerHTML = songs.map((song) => `
-    <article class="message-item">
+    <article class="message-item song-item public-card">
       <header>
-        <strong>${(song.Cancion || 'Canción sugerida').replace(/</g, '&lt;')}</strong>
+        <div class="card-meta">
+          <span class="card-tag card-tag-song">Canción</span>
+          <strong>${(song.Cancion || 'Canción sugerida').replace(/</g, '&lt;')}</strong>
+        </div>
         <time>${formatRelativeDate(song.Fecha)}</time>
       </header>
       <p>${(song.Artista || 'Artista por definir').replace(/</g, '&lt;')}</p>

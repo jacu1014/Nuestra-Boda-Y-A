@@ -188,7 +188,7 @@
   },
   "qrAlbum": "",
   "qrGifts": "",
-  "qrAlbumImage": "",
+  "qrAlbumImage": "Fotos/QR_Album.jpeg",
   "qrGiftsImage": "",
   "publicContent": {
     "heroEyebrow": "Nuestra historia escrita en las estrellas",
@@ -241,19 +241,19 @@
     "notes": "Recordatorio para coordinación del evento",
     "checklist": [
       {
-        "id": "org-1789362232785-adcbc4",
+        "id": "org-1789435480176-3cf8e6",
         "title": "Confirmación de asistencia",
         "owner": "",
         "done": false
       },
       {
-        "id": "org-1789362232785-91636d",
+        "id": "org-1789435480176-164f65",
         "title": "Confirmar estrategia musical",
         "owner": "Pareja",
         "done": false
       },
       {
-        "id": "org-1789362232785-5835e7",
+        "id": "org-1789435480176-9c5e2c",
         "title": "Revisión final de la decoración",
         "owner": "",
         "done": false
