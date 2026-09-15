@@ -142,23 +142,28 @@ async function loadGalleryManager() {
       if (!gallery.length) {
         currentGallery.innerHTML = '<p class="empty-list-state">Todavía no hay fotos en el carrusel.</p>';
       } else {
-        currentGallery.innerHTML = gallery.map((photo, index) => `
-          <div class="gallery-manager-item">
-            <img src="${photo.src}" alt="${(photo.caption || '').replace(/"/g, '&quot;')}" />
-            <div class="gallery-manager-body">
-              <input type="text" value="${(photo.caption || '').replace(/"/g, '&quot;')}" data-gallery-caption="${photo.id}" placeholder="Leyenda" />
-              <label class="toggle-inline">
-                <input type="checkbox" data-gallery-enabled="${photo.id}" ${photo.enabled === false ? '' : 'checked'} />
-                <span>Activa</span>
-              </label>
+        currentGallery.innerHTML = gallery.map((photo, index) => {
+          const captionValue = photo.caption || photo.phrase || '';
+          const phraseValue = photo.phrase || photo.caption || '';
+          return `
+            <div class="gallery-manager-item">
+              <img src="${photo.src}" alt="${captionValue.replace(/"/g, '&quot;')}" />
+              <div class="gallery-manager-body">
+                <input type="text" value="${captionValue.replace(/"/g, '&quot;')}" data-gallery-caption="${photo.id}" placeholder="Frase visible en la foto" />
+                <input type="text" value="${phraseValue.replace(/"/g, '&quot;')}" data-gallery-phrase="${photo.id}" placeholder="Frase del carrusel" />
+                <label class="toggle-inline">
+                  <input type="checkbox" data-gallery-enabled="${photo.id}" ${photo.enabled === false ? '' : 'checked'} />
+                  <span>Activa</span>
+                </label>
+              </div>
+              <div class="gallery-manager-actions">
+                <button type="button" class="gallery-move" data-gallery-move="${photo.id}" data-direction="up" ${index === 0 ? 'disabled' : ''}>↑</button>
+                <button type="button" class="gallery-move" data-gallery-move="${photo.id}" data-direction="down" ${index === gallery.length - 1 ? 'disabled' : ''}>↓</button>
+                <button type="button" class="gallery-remove" data-gallery-remove="${photo.id}">Eliminar</button>
+              </div>
             </div>
-            <div class="gallery-manager-actions">
-              <button type="button" class="gallery-move" data-gallery-move="${photo.id}" data-direction="up" ${index === 0 ? 'disabled' : ''}>↑</button>
-              <button type="button" class="gallery-move" data-gallery-move="${photo.id}" data-direction="down" ${index === gallery.length - 1 ? 'disabled' : ''}>↓</button>
-              <button type="button" class="gallery-remove" data-gallery-remove="${photo.id}">Eliminar</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
     }
 
@@ -183,7 +188,7 @@ async function loadGalleryManager() {
           button.addEventListener('click', async () => {
             const settings = await fetchWeddingSettings();
             const gallery = Array.isArray(settings && settings.gallery) ? settings.gallery : [];
-            gallery.push({ id: `gallery-${Date.now()}`, src: button.dataset.galleryAdd, caption: '', enabled: true });
+            gallery.push({ id: `gallery-${Date.now()}`, src: button.dataset.galleryAdd, caption: '', phrase: '', enabled: true });
             const payload = { ...(settings || {}), gallery };
             const response = await fetch(apiUrl('/api/settings'), {
               method: 'PUT',
@@ -207,9 +212,29 @@ async function loadGalleryManager() {
         const item = gallery.find((photo) => photo.id === event.target.dataset.galleryCaption);
         if (!item) return;
         item.caption = event.target.value.trim();
+        if (!item.phrase || item.phrase === item.caption) {
+          item.phrase = item.caption.trim();
+        }
         const response = await fetch(apiUrl('/api/settings'), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...(settings || {}), gallery }) });
         if (!response.ok) {
           console.error('No se pudo actualizar la leyenda de la galería');
+        }
+      });
+    });
+
+    currentGallery?.querySelectorAll('[data-gallery-phrase]').forEach((input) => {
+      input.addEventListener('change', async (event) => {
+        const settings = await fetchWeddingSettings();
+        const gallery = Array.isArray(settings && settings.gallery) ? settings.gallery : [];
+        const item = gallery.find((photo) => photo.id === event.target.dataset.galleryPhrase);
+        if (!item) return;
+        item.phrase = event.target.value.trim();
+        if (!item.caption) {
+          item.caption = item.phrase;
+        }
+        const response = await fetch(apiUrl('/api/settings'), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...(settings || {}), gallery }) });
+        if (!response.ok) {
+          console.error('No se pudo actualizar la frase de la galería');
         }
       });
     });
@@ -680,6 +705,7 @@ function initPersonalizationForm() {
           id: `custom-${Date.now()}`,
           src: uploadedGallery,
           caption: galleryCaption || 'Nuevo recuerdo',
+          phrase: galleryCaption || 'Nuevo recuerdo',
           enabled: true
         }, ...nextGallery];
       }
@@ -869,7 +895,12 @@ async function loadGuestTable() {
               <option value="No" ${statusValue === 'No' ? 'selected' : ''}>No</option>
             </select>
           </td>
-          <td data-label="Acción"><button class="guest-save" type="button" data-save-id="${guest.ID}">Guardar</button></td>
+          <td data-label="Acción">
+            <div class="guest-row-actions">
+              <button class="guest-save" type="button" data-save-id="${guest.ID}">Guardar</button>
+              <button class="guest-delete" type="button" data-delete-id="${guest.ID}">Eliminar</button>
+            </div>
+          </td>
         </tr>
       `;
     }).join('');
@@ -902,6 +933,26 @@ async function loadGuestTable() {
         } catch (error) {
           console.error(error);
           alert(error.message || 'Error al guardar la respuesta');
+        }
+      });
+    });
+
+    tableBody.querySelectorAll('.guest-delete').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const guestId = button.dataset.deleteId;
+        if (!guestId || !window.confirm('¿Deseas eliminar este invitado?')) return;
+
+        try {
+          const response = await fetch(apiUrl(`/api/invitados/${guestId}`), {
+            method: 'DELETE'
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.error || 'No se pudo eliminar el invitado');
+          await updateGuestMetrics();
+          await loadGuestTable();
+        } catch (error) {
+          console.error(error);
+          alert(error.message || 'Error al eliminar el invitado');
         }
       });
     });
@@ -1041,6 +1092,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     const exportButton = document.getElementById('export-guest-csv');
     if (exportButton) {
       exportButton.addEventListener('click', exportGuestCsv);
+    }
+
+    const guestForm = document.getElementById('guest-form');
+    if (guestForm) {
+      guestForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(guestForm);
+        const payload = {
+          Primer_nombre: String(formData.get('guestFirstName') || '').trim(),
+          Segundo_nombre: String(formData.get('guestMiddleName') || '').trim(),
+          Primer_apellido: String(formData.get('guestLastName') || '').trim(),
+          Segundo_apellido: String(formData.get('guestSecondLastName') || '').trim(),
+          Tipo_invitacion: String(formData.get('guestType') || '').trim(),
+          De_parte: String(formData.get('guestParty') || '').trim(),
+          ID_relacionado: String(formData.get('guestRelatedId') || '').trim(),
+          Confirmacion: String(formData.get('guestStatus') || 'Pendiente').trim()
+        };
+
+        if (!payload.Primer_nombre && !payload.Primer_apellido && !payload.ID_relacionado) {
+          alert('Debes ingresar al menos un nombre, apellido o ID relacionado.');
+          return;
+        }
+
+        try {
+          const response = await fetch(apiUrl('/api/invitados-admin'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(result.error || 'No se pudo crear el invitado');
+          guestForm.reset();
+          await updateGuestMetrics();
+          await loadGuestTable();
+        } catch (error) {
+          console.error(error);
+          alert(error.message || 'Error al crear el invitado');
+        }
+      });
     }
 
     await updateGuestMetrics();

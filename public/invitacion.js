@@ -781,34 +781,36 @@ function setupCarousel() {
     let current = 0;
     let timer;
 
-    // Filtrar solo imágenes numeradas (1.png, 2.png, etc.)
+    const isCarouselImage = (entry) => {
+      if (!entry || entry.enabled === false || !entry.src) return false;
+      const source = String(entry.src || '').trim();
+      if (!source) return false;
+      if (/(QR_Album|qr.*album|Dresscode|bienvenida|reserva)/i.test(source)) return false;
+      return true;
+    };
+
     let gallery = Array.isArray(activeSettings.gallery) && activeSettings.gallery.length
-      ? activeSettings.gallery.filter((entry) => {
-          if (!entry || entry.enabled === false || !entry.src) return false;
-          // Solo incluir si el nombre es numérico (1.png, 2.png, etc.)
-          const filename = entry.src.split('/').pop().toLowerCase();
-          return /^\d+\.(png|jpg|jpeg|gif|webp)$/i.test(filename);
-        })
+      ? activeSettings.gallery.filter(isCarouselImage)
       : [];
 
     if (!gallery.length) {
-      track.innerHTML = '<p class="gallery-empty">Añade fotos numeradas (1.png, 2.png, etc.) en la carpeta Fotos.</p>';
+      track.innerHTML = '<p class="gallery-empty">Añade fotos o URLs de Supabase para mostrar en el carrusel.</p>';
       return;
     }
 
     track.innerHTML = '';
     dots.innerHTML = '';
 
-    // Crear diapositivas
     gallery.forEach((photo, index) => {
       const slide = document.createElement("figure");
       slide.className = `photo-slide${index === 0 ? " is-active" : ""}`;
       const image = document.createElement("img");
       image.src = photo.src;
-      image.alt = photo.caption || `Momento ${index + 1} de Y y A`;
+      image.alt = photo.caption || photo.phrase || `Momento ${index + 1} de Y y A`;
       image.loading = "lazy";
       const caption = document.createElement("figcaption");
-      caption.textContent = photo.caption || `Momento ${index + 1} de nuestra historia`;
+      const phraseText = photo.phrase || photo.caption || `Momento ${index + 1} de nuestra historia`;
+      caption.textContent = phraseText;
       slide.append(image, caption);
       track.appendChild(slide);
 

@@ -343,6 +343,55 @@
 
             <article class="admin-card wide-card">
               <div class="section-toolbar guest-toolbar">
+                <p class="card-title">Agregar invitado</p>
+              </div>
+              <form id="guest-form" class="guest-form">
+                <div class="guest-form-grid">
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestFirstName">Nombre</label>
+                    <input id="guestFirstName" name="guestFirstName" type="text" placeholder="Ej: Ana" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestMiddleName">Segundo nombre</label>
+                    <input id="guestMiddleName" name="guestMiddleName" type="text" placeholder="Opcional" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestLastName">Primer apellido</label>
+                    <input id="guestLastName" name="guestLastName" type="text" placeholder="Ej: García" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestSecondLastName">Segundo apellido</label>
+                    <input id="guestSecondLastName" name="guestSecondLastName" type="text" placeholder="Opcional" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestType">Tipo</label>
+                    <input id="guestType" name="guestType" type="text" placeholder="Ej: Familiar, Pareja" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestParty">De parte</label>
+                    <input id="guestParty" name="guestParty" type="text" placeholder="Ej: Familia López" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestRelatedId">ID relacionado</label>
+                    <input id="guestRelatedId" name="guestRelatedId" type="text" placeholder="Opcional" />
+                  </div>
+                  <div class="form-field-group">
+                    <label class="field-label" for="guestStatus">Estado</label>
+                    <select id="guestStatus" name="guestStatus">
+                      <option value="Pendiente">Pendiente</option>
+                      <option value="Sí">Sí</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="guest-form-actions">
+                  <button class="secondary-button" type="submit">Guardar invitado</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="admin-card wide-card">
+              <div class="section-toolbar guest-toolbar">
                 <p class="card-title">Lista de invitados</p>
                 <div class="guest-controls">
                   <input id="guest-search" type="search" placeholder="Buscar por nombre o apellido" />
@@ -434,11 +483,11 @@
                 <input id="galleryImage" name="galleryImage" type="file" accept="image/*" />
               </div>
               <div class="form-field-group">
-                <label class="field-label" for="galleryCaption">Leyenda de la foto</label>
+                <label class="field-label" for="galleryCaption">Frase visible en la foto / carrusel</label>
                 <input id="galleryCaption" name="galleryCaption" type="text" placeholder="Ej: El comienzo de nuestra historia" />
               </div>
               <div class="form-field-group">
-                <label class="field-label" for="galleryUrl">URL de la galería (opcional)</label>
+                <label class="field-label" for="galleryUrl">URL de la imagen (Supabase, Drive o alojamiento)</label>
                 <input id="galleryUrl" name="galleryUrl" type="url" placeholder="https://.../foto.jpg" />
               </div>
               <div class="form-field-group">

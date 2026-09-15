@@ -196,6 +196,40 @@ function hasSupabase() {
   return Boolean(SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY) && supabase);
 }
 
+function getSupabaseBucketName() {
+  return process.env.SUPABASE_BUCKET || process.env.SUPABASE_STORAGE_BUCKET || 'wedding-media';
+}
+
+function buildSupabasePublicUrl(objectPath, bucketName = getSupabaseBucketName()) {
+  if (!SUPABASE_URL || !objectPath) {
+    return '';
+  }
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucketName}/${String(objectPath).replace(/^\/+/, '')}`;
+}
+
+async function uploadToSupabaseStorage(file, folder = 'gallery') {
+  if (!file || !hasSupabase()) {
+    return null;
+  }
+
+  const bucketName = getSupabaseBucketName();
+  const safeFileName = (file.originalname || file.filename || 'upload').replace(/[^a-zA-Z0-9_.-]/g, '_');
+  const objectPath = `${folder}/${Date.now()}-${safeFileName}`;
+  const fileBuffer = file.buffer || fs.readFileSync(file.path);
+
+  const { data, error } = await supabase.storage.from(bucketName).upload(objectPath, fileBuffer, {
+    upsert: true,
+    cacheControl: '3600',
+    contentType: file.mimetype || 'application/octet-stream'
+  });
+
+  if (error) {
+    throw new Error(error.message || 'No se pudo subir el archivo a Supabase Storage.');
+  }
+
+  return buildSupabasePublicUrl(data && data.path ? data.path : objectPath, bucketName);
+}
+
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdminAuthenticated) {
     return next();
@@ -236,6 +270,27 @@ function guestStatus(guest) {
   if (!status || status === 'pendiente') return 'Pendiente';
   if (status === 'si' || status === 'sí') return 'Sí';
   return 'No';
+}
+
+function normalizeGuestPayload(input = {}) {
+  const guest = input && typeof input === 'object' ? input : {};
+  const status = String(guest.Confirmacion ?? guest.confirmacion ?? '').trim();
+  const normalizedStatus = status === '' || /pendiente|pending/i.test(status)
+    ? 'Pendiente'
+    : /si|sí|yes/i.test(status)
+      ? 'Sí'
+      : 'No';
+
+  return {
+    Primer_nombre: String(guest.Primer_nombre ?? guest.primer_nombre ?? '').trim(),
+    Segundo_nombre: String(guest.Segundo_nombre ?? guest.segundo_nombre ?? '').trim(),
+    Primer_apellido: String(guest.Primer_apellido ?? guest.primer_apellido ?? '').trim(),
+    Segundo_apellido: String(guest.Segundo_apellido ?? guest.segundo_apellido ?? '').trim(),
+    De_parte: String(guest.De_parte ?? guest.de_parte ?? '').trim(),
+    Tipo_invitacion: String(guest.Tipo_invitacion ?? guest.tipo_invitacion ?? '').trim(),
+    ID_relacionado: String(guest.ID_relacionado ?? guest.id_relacionado ?? '').trim(),
+    Confirmacion: normalizedStatus
+  };
 }
 
 // Función para leer los datos del archivo Excel
@@ -572,6 +627,7 @@ function normalizeSettings(settings) {
         id: String(item && item.id ? item.id : `gallery-${index + 1}`),
         src: String(item && item.src ? item.src : ''),
         caption: String(item && item.caption ? item.caption : ''),
+        phrase: String(item && (item.phrase || item.caption || '') ? (item.phrase || item.caption || '') : ''),
         enabled: item && item.enabled !== undefined ? Boolean(item.enabled) : true
       }))
       .filter((item) => item.src),
@@ -811,28 +867,61 @@ app.put('/api/settings', requireAdmin, express.json(), async (req, res) => {
   res.json(savedSettings);
 });
 
-app.post('/api/upload/photo', requireAdmin, upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Debes enviar un archivo de imagen.' });
+app.post('/api/upload/photo', requireAdmin, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Debes enviar un archivo de imagen.' });
+    }
+
+    if (hasSupabase()) {
+      const url = await uploadToSupabaseStorage(req.file, 'gallery');
+      return res.json({ ok: true, url, filename: req.file.filename, source: 'supabase' });
+    }
+
+    const fileUrl = `/uploads/photos/${req.file.filename}`;
+    return res.json({ ok: true, url: fileUrl, filename: req.file.filename, source: 'local' });
+  } catch (error) {
+    console.error('Error al subir la foto:', error);
+    return res.status(500).json({ error: error.message || 'No se pudo subir la imagen.' });
   }
-  const fileUrl = `/uploads/photos/${req.file.filename}`;
-  return res.json({ ok: true, url: fileUrl, filename: req.file.filename });
 });
 
-app.post('/api/upload/music', requireAdmin, upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Debes enviar un archivo de audio.' });
+app.post('/api/upload/music', requireAdmin, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Debes enviar un archivo de audio.' });
+    }
+
+    if (hasSupabase()) {
+      const url = await uploadToSupabaseStorage(req.file, 'music');
+      return res.json({ ok: true, url, filename: req.file.filename, source: 'supabase' });
+    }
+
+    const fileUrl = `/uploads/music/${req.file.filename}`;
+    return res.json({ ok: true, url: fileUrl, filename: req.file.filename, source: 'local' });
+  } catch (error) {
+    console.error('Error al subir la música:', error);
+    return res.status(500).json({ error: error.message || 'No se pudo subir la música.' });
   }
-  const fileUrl = `/uploads/music/${req.file.filename}`;
-  return res.json({ ok: true, url: fileUrl, filename: req.file.filename });
 });
 
-app.post('/api/upload/qr', requireAdmin, upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Debes enviar una imagen QR.' });
+app.post('/api/upload/qr', requireAdmin, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Debes enviar una imagen QR.' });
+    }
+
+    if (hasSupabase()) {
+      const url = await uploadToSupabaseStorage(req.file, 'qr');
+      return res.json({ ok: true, url, filename: req.file.filename, source: 'supabase' });
+    }
+
+    const fileUrl = `/uploads/qr/${req.file.filename}`;
+    return res.json({ ok: true, url: fileUrl, filename: req.file.filename, source: 'local' });
+  } catch (error) {
+    console.error('Error al subir el QR:', error);
+    return res.status(500).json({ error: error.message || 'No se pudo subir el archivo QR.' });
   }
-  const fileUrl = `/uploads/qr/${req.file.filename}`;
-  return res.json({ ok: true, url: fileUrl, filename: req.file.filename });
 });
 
 app.get('/api/gallery/available', requireAdmin, async (req, res) => {
@@ -1035,7 +1124,7 @@ app.get('/api/guest-stats', async (req, res) => {
   }
 });
 
-app.get('/api/invitados-admin', async (req, res) => {
+app.get('/api/invitados-admin', requireAdmin, async (req, res) => {
   try {
     const query = normalizeText(req.query.q || '');
     const statusFilter = String(req.query.status || 'all').toLowerCase();
@@ -1075,7 +1164,32 @@ app.get('/api/invitados-admin', async (req, res) => {
   }
 });
 
-app.patch('/api/invitados/:id', async (req, res) => {
+app.post('/api/invitados-admin', requireAdmin, express.json(), async (req, res) => {
+  try {
+    const payload = normalizeGuestPayload(req.body || {});
+    const hasAnyField = Object.values(payload).some((value) => String(value).trim() !== '');
+
+    if (!hasAnyField || (!payload.Primer_nombre && !payload.Primer_apellido && !payload.ID_relacionado)) {
+      return res.status(400).json({ error: 'Debes ingresar al menos nombre, apellido o ID relacionado.' });
+    }
+
+    const guests = await readGuestRecords();
+    const nextId = guests.reduce((max, guest) => Math.max(max, Number(guest.ID) || 0), 0) + 1;
+    const newGuest = {
+      ID: nextId,
+      ...payload
+    };
+
+    guests.push(newGuest);
+    await writeGuestRecords(guests);
+    res.status(201).json({ success: true, guest: newGuest });
+  } catch (error) {
+    console.error('Error al crear invitado:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.patch('/api/invitados/:id', requireAdmin, express.json(), async (req, res) => {
   try {
     const guestId = String(req.params.id || '').trim();
     const changes = req.body || {};
@@ -1089,24 +1203,66 @@ app.patch('/api/invitados/:id', async (req, res) => {
       return res.status(404).json({ error: 'Invitado no encontrado' });
     }
 
-    if (changes.Confirmacion !== undefined) {
-      const normalized = String(changes.Confirmacion).trim();
-      guests[guestIndex].Confirmacion = normalized === 'Sí' || normalized === 'SI' || normalized === 'si' ? 'Sí' : normalized === 'No' || normalized === 'NO' || normalized === 'no' ? 'No' : 'Pendiente';
-    }
+    const nextGuest = {
+      ...guests[guestIndex],
+      ...normalizeGuestPayload({ ...guests[guestIndex], ...changes })
+    };
 
-    if (changes.Tipo_invitacion !== undefined) {
-      guests[guestIndex].Tipo_invitacion = String(changes.Tipo_invitacion).trim();
-    }
+    if (changes.Primer_nombre !== undefined) nextGuest.Primer_nombre = String(changes.Primer_nombre).trim();
+    if (changes.Segundo_nombre !== undefined) nextGuest.Segundo_nombre = String(changes.Segundo_nombre).trim();
+    if (changes.Primer_apellido !== undefined) nextGuest.Primer_apellido = String(changes.Primer_apellido).trim();
+    if (changes.Segundo_apellido !== undefined) nextGuest.Segundo_apellido = String(changes.Segundo_apellido).trim();
+    if (changes.Tipo_invitacion !== undefined) nextGuest.Tipo_invitacion = String(changes.Tipo_invitacion).trim();
+    if (changes.De_parte !== undefined) nextGuest.De_parte = String(changes.De_parte).trim();
+    if (changes.ID_relacionado !== undefined) nextGuest.ID_relacionado = String(changes.ID_relacionado).trim();
+    if (changes.Confirmacion !== undefined) nextGuest.Confirmacion = String(changes.Confirmacion).trim();
 
-    if (changes.De_parte !== undefined) {
-      guests[guestIndex].De_parte = String(changes.De_parte).trim();
+    if (nextGuest.Confirmacion === '') nextGuest.Confirmacion = 'Pendiente';
+    if (nextGuest.Confirmacion && !/pendiente|pending|si|sí|yes|no/i.test(nextGuest.Confirmacion)) {
+      nextGuest.Confirmacion = 'Pendiente';
     }
+    nextGuest.Confirmacion = /pendiente|pending/i.test(nextGuest.Confirmacion)
+      ? 'Pendiente'
+      : /si|sí|yes/i.test(nextGuest.Confirmacion)
+        ? 'Sí'
+        : 'No';
 
+    guests[guestIndex] = nextGuest;
     await writeGuestRecords(guests);
     res.json({ success: true, guest: guests[guestIndex] });
   } catch (error) {
     console.error('Error al actualizar invitado:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/invitados/:id', requireAdmin, async (req, res) => {
+  try {
+    const guestId = String(req.params.id || '').trim();
+    if (!guestId) {
+      return res.status(400).json({ error: 'ID faltante' });
+    }
+
+    if (hasSupabase()) {
+      const { error } = await supabase.from('guests').delete().eq('id', Number(guestId));
+      if (error) {
+        throw new Error(error.message || 'No se pudo eliminar el invitado en Supabase.');
+      }
+      return res.json({ success: true, deletedId: guestId });
+    }
+
+    const guests = await readGuestRecords();
+    const originalLength = guests.length;
+    const filteredGuests = guests.filter((guest) => String(guest.ID) !== guestId);
+    if (filteredGuests.length === originalLength) {
+      return res.status(404).json({ error: 'Invitado no encontrado' });
+    }
+
+    await writeGuestRecords(filteredGuests);
+    return res.json({ success: true, deletedId: guestId });
+  } catch (error) {
+    console.error('Error al eliminar invitado:', error);
+    return res.status(500).json({ error: error.message });
   }
 });
 

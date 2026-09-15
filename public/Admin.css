@@ -730,7 +730,14 @@ a:focus-visible {
   padding: 0.55rem 0.65rem;
 }
 
-.guest-save {
+.guest-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.guest-save,
+.guest-delete {
   border: 1px solid rgba(244, 220, 145, 0.28);
   background: rgba(212,175,55,0.1);
   color: var(--paper);
@@ -739,8 +746,40 @@ a:focus-visible {
   cursor: pointer;
 }
 
+.guest-delete {
+  border-color: rgba(236, 99, 99, 0.35);
+  background: rgba(160, 36, 36, 0.12);
+}
+
 .guest-save:hover {
   background: rgba(212,175,55,0.18);
+}
+
+.guest-delete:hover {
+  background: rgba(160, 36, 36, 0.2);
+}
+
+.guest-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.guest-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.guest-form-grid .form-field-group {
+  margin: 0;
+}
+
+.guest-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .wide-card {
