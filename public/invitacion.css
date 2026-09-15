@@ -162,7 +162,9 @@ body {
 .swatch.emerald::after { content: "Verde Esmeralda"; }
 .album-section { background: transparent; }.qr-frame { display: grid; width: 11rem; height: 11rem; margin: 2rem auto; place-content: center; gap: .5rem; border: 1px dashed var(--gold); color: var(--gold-light); background: rgba(8, 37, 27, .62); }.qr-frame span { font-family: Georgia, serif; font-size: 3rem; }.qr-frame small { font-size: .6rem; }.guest-album { display: grid; max-width: 32rem; min-height: 7rem; margin: auto; place-items: center; border: 1px dashed var(--gold); color: rgba(255, 248, 230, .72); }.guest-album span { color: var(--gold); font-size: 2rem; }.guest-album p { margin: 0; font-size: .8rem; }
 .qr-frame img { display: block; width: min(100%, 14rem); aspect-ratio: 1; object-fit: contain; border-radius: 1rem; box-shadow: 0 1rem 2.2rem rgba(7, 26, 19, .18); }
-.community-section, .song-section { background: linear-gradient(135deg, rgba(255,255,255,.035), rgba(255,255,255,.015)); }
+.community-section, .song-section { background: linear-gradient(135deg, rgba(10, 46, 37, .8), rgba(7, 26, 19, .72)); }
+.community-section .eyebrow, .song-section .eyebrow { color: var(--gold-light); }
+.community-section h2, .song-section h2 { color: #fffaf0; font-size: clamp(2.8rem, 7vw, 5.2rem); text-shadow: 0 0 1.2rem rgba(212, 175, 55, .15); }
 .community-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
 .community-form {
   display: grid;
